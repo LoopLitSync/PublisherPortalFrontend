@@ -1,11 +1,22 @@
 import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import BookSubmission from './pages/BookSubmission';
+import PublisherDashboard from './pages/PublisherDashboard';
+import PublisherProfile from './pages/PublisherProfile';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
     <>
-      <h1 className="text-3xl font-bold underline text-center">
-          Hello Tailwind!
-        </h1>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/book-submission" element={<BookSubmission />} />
+          <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
+          <Route path="/publisher-profile" element={<PublisherProfile />} />
+        </Routes>
+      </Router>
     </>
   );
 }

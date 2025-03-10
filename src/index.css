@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+@theme {
+  --color-seagreen: #1FA7A5;
+  --color-neturalgreen: #1e8886;
+  --color-darkgreen: #0A7270;
+  --color-dimgrey: #616163;
+  --color-alabaster: #F3EEE6;
+  --color-lightcoral: #EF767A;
+  --color-slateblue: #8075FF;
+}
+
+:root {
+  @apply bg-alabaster text-dimgrey; 
+}
+
+/* 
+:root{
+  background-color: #F3EEE6;
+} */
 /* 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

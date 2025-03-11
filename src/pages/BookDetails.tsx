@@ -1,5 +1,5 @@
 import Button from "../components/Button";
-import Pending from "../components/Pending";
+import statusComponents from "../components/validationStatus/StatusComponents.tsx";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Book } from "../models/Book";
@@ -19,10 +19,18 @@ function BookDetails() {
         return <p className="text-center mt-10">Loading book details...</p>;
     }
 
+    const StatusComponent = statusComponents[book.validationStatus] || statusComponents["PENDING"];
+
     return (
         <div className="flex gap-20 m-10">
             <div>
-            <img className="rounded-lg" src={book.coverImg || "default_book.webp"} alt={book.title} />
+                {book.coverImg ? (
+                    <img className="rounded-lg w-40 h-60 object-cover" src={book.coverImg} alt={book.title} />
+                ) : (
+                    <div className="w-40 h-60 flex items-center justify-center bg-white text-gray-600 border border-gray-400 rounded-lg">
+                        No cover available
+                    </div>
+                )}
             </div>
             <div className="flex flex-col gap-5">
                 <h1 className="text-5xl text-black">{book.title}</h1>
@@ -36,7 +44,7 @@ function BookDetails() {
                 </div>
                 <div className='flex flex-row gap-2'>
                     <p>Publication date:</p>
-                    <p></p>
+                    <p>{book.publicationDate}</p>
                 </div>
                 <div className='flex flex-row gap-2'>
                     <p>Genres:</p>
@@ -47,8 +55,12 @@ function BookDetails() {
                 <hr></hr>
                 <div className='flex flex-row gap-2'>
                     <p>Validation status:</p>
-                    <Pending></Pending>
-                    <p>{}</p>
+                    <StatusComponent />
+                    {book.validationStatus === "NEEDS_REVISION" ? (
+                        <p>NEEDS REVISION</p>
+                    ) : (
+                        <p>{book.validationStatus}</p>
+                    )} 
                 </div>
                 <Button text="Edit"></Button>
             </div>

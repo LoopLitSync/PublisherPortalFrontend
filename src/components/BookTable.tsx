@@ -11,7 +11,7 @@ const BookTable = () => {
 
   return (
     <div className="p-6">
-      <table className="w-full border border-gray-400 shadow-lg">
+      <table className="w-full border border-gray-400 bg-white shadow-lg">
         <thead>
           <tr className="bg-[#8075FF] text-white text-left border-b border-gray-400">
             <th className="p-3 border-r border-gray-300">ISBN</th>

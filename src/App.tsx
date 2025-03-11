@@ -4,6 +4,7 @@ import BookSubmission from './pages/BookSubmission';
 import PublisherDashboard from './pages/PublisherDashboard';
 import PublisherProfile from './pages/PublisherProfile';
 import Navbar from './components/Navbar';
+import BookDetails from './pages/BookDetails';
 
 import PrivateRoute from './PrivateRoute';
 

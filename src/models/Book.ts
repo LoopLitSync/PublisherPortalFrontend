@@ -8,4 +8,6 @@ export interface Book {
     genres: string[];
     language: string;
     coverImg?: string | null;
+    validationStatus?: string | null;
+    uploadedDate: string;
   }

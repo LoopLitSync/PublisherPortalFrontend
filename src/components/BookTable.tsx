@@ -30,8 +30,8 @@ const BookTable = () => {
                 <td className="p-3 border-r border-black">{book.title}</td>
                 <td className="p-3 border-r border-black">{book.description}</td>
                 <td className="p-3 border-r border-black">{book.publicationDate}</td>
-                <td className="p-3 border-r border-black">-</td>
-                <td className="p-3">-</td>
+                <td className="p-3 border-r border-black">{book.uploadedDate}</td>
+                <td className="p-3">{book.validationStatus}</td>
               </tr>
             ))
           ) : (

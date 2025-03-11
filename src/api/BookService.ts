@@ -12,3 +12,12 @@ export const fetchBooks = async (): Promise<Book[]> => {
     return [];
   }
 };
+
+export const fetchBookByIsbn = async (isbn: string): Promise<Book> => {
+  const response = await fetch(API_URL + `/${isbn}`);
+  if (!response.ok) {
+      throw new Error("Failed to fetch book details");
+  }
+  return response.json();
+};
+

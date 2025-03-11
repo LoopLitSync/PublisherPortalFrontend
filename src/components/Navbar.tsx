@@ -96,7 +96,7 @@ const Navbar: React.FC = () => {
                         className="flex items-center space-x-2 text-white focus:outline-none" style={{ cursor:"pointer" }}>
                         <span className="hidden md:block">Welcome, User</span>
                         <img
-                            src="public/default_user.png"
+                            src="default_user.png"
                             alt="Profile"
                             className="w-10 h-10 right-3 rounded-full border border-white" />
 

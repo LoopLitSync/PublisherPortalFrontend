@@ -4,16 +4,31 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Book } from "../models/Book";
 import { fetchBookByIsbn } from "../api/BookService";
+import EditBookModal from "../components/EditBookModal.tsx";
 
 function BookDetails() {
     const { isbn } = useParams();
     const [book, setBook] = useState<Book | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         if (isbn) {
             fetchBookByIsbn(isbn).then(setBook);
         }
     }, [isbn]);
+
+    async function handleSave (formData: { title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string; }) {
+        const updatedBook: Book = {
+            ...book,
+            ...formData,
+            genres: formData.genres.split(",").map(genre => genre.trim()),
+            isbn: book?.isbn || "",
+            validationStatus: book?.validationStatus || "PENDING"
+        };
+
+        // await updateBook(isbn, updatedBook);
+        setBook((prev => ({...prev, ...updatedBook})));
+    }
 
     if (!book) {
         return <p className="text-center mt-10">Loading book details...</p>;
@@ -62,8 +77,14 @@ function BookDetails() {
                         <p>{book.validationStatus}</p>
                     )} 
                 </div>
-                <Button text="Edit"></Button>
+                <Button onClick={() => setIsEditModalOpen(true)} text="Edit"></Button>
             </div>
+            <EditBookModal
+                book={book}
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleSave}>
+            </EditBookModal>
         </div>
     )
 }

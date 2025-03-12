@@ -7,18 +7,27 @@ interface EditBookModalProps {
     book: Book;
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: { title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string; }) => Promise<void>;
+    onSave: (formData: { title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string[]; }) => Promise<void>;
 }
 
 function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        title: string;
+        authorFirstName: string;
+        authorLastName: string;
+        description: string;
+        language: string;
+        publicationDate: string;
+        genres: string[];
+        coverImg: string;
+    }>({
         title: "",
         authorFirstName: "",
         authorLastName: "",
         description: "",
         language: "",
         publicationDate: "",
-        genres: "",
+        genres: [],
         coverImg: "",
     });
 
@@ -34,6 +43,8 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
     const languages = ["English", "Norwegian", "Danish", "Swedish", "Spanish", "French", "German"];
 
+    const availableGenres = ["Fiction", "Non-Fiction", "Science Fiction", "Fantasy", "Mystery", "Romance", "Biography", "History", "Thriller"];
+
     useEffect(() => {
         if (book) {
             setFormData({
@@ -43,7 +54,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                 description: book.description,
                 language: book.language,
                 publicationDate: book.publicationDate,
-                genres: book.genres.join(", "),
+                genres: book.genres,
                 coverImg: book.coverImg || "",
             });
         }
@@ -67,6 +78,22 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
     const handleRemoveImage = () => {
         setFormData((prev) => ({ ...prev, coverImg: "" }));
+    };
+
+    const handleGenreSelect = (genre: string) => {
+        if (!formData.genres.includes(genre)) {
+            setFormData((prev) => ({
+                ...prev,
+                genres: [...prev.genres, genre],
+            }));
+        }
+    };
+
+    const handleGenreRemove = (genre: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            genres: prev.genres.filter((selectedGenre) => selectedGenre !== genre),
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -113,7 +140,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
                     <textarea className="w-full p-2 border rounded" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
                     {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
-                    
+
                     <select
                         className="w-full p-2 border rounded"
                         name="language"
@@ -132,9 +159,41 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     <input className="w-full p-2 border rounded" type="date" name="publicationDate" value={formData.publicationDate} onChange={handleChange} />
                     {errors.publicationDate && <p className="text-red-500 text-sm">{errors.publicationDate}</p>}
 
-                    <input className="w-full p-2 border rounded" name="genres" value={formData.genres} onChange={handleChange} placeholder="Genres" />
-                    {errors.genres && <p className="text-red-500 text-sm">{errors.genres}</p>}
-                    
+                    <div className="flex flex-col space-y-2">
+                        <label className="text-lg">Genres</label>
+                        <select
+                            className="w-full p-2 border rounded"
+                            onChange={(e) => handleGenreSelect(e.target.value)}
+                            defaultValue=""
+                        >
+                            <option value="" disabled>Select Genre</option>
+                            {availableGenres.map((genre, index) => (
+                                <option key={index} value={genre}>
+                                    {genre}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.genres && <p className="text-red-500 text-sm">{errors.genres}</p>}
+
+                        <div className="flex gap-2 flex-wrap">
+                            {formData.genres.map((genre, index) => (
+                                <span
+                                    key={index}
+                                    className="bg-[#ebe9ff] text-[#8075FF] px-2 py-1 rounded-full flex items-center gap-1"
+                                >
+                                    {genre}
+                                    <button
+                                        type="button"
+                                        className="text-[#8075FF] hover:text-[#3c3776]"
+                                        onClick={() => handleGenreRemove(genre)}
+                                    >
+                                        &times;
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="flex justify-end gap-2">
                         <button type="button" className="px-4 py-2 bg-gray-400 text-white rounded-lg" onClick={onClose}>Cancel</button>
                         <Button text="Save" />

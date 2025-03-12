@@ -5,7 +5,7 @@ export interface FormData {
     description: string;
     language: string;
     publicationDate: string;
-    genres: string; 
+    genres: string[]; 
 }
 
 export interface Errors {
@@ -61,8 +61,8 @@ export function validateForm(formData: FormData): { isValid: boolean; errors: Er
         isValid = false;
     }
 
-    if (!formData.genres) {
-        errors.genres = "Genres are required";
+    if (formData.genres.length === 0) {
+        errors.genres = "At least one genre must be selected";
         isValid = false;
     }
 

@@ -17,11 +17,10 @@ function BookDetails() {
         }
     }, [isbn]);
 
-    async function handleSave (formData: { title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string; }) {
+    async function handleSave (formData: { title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string[]; }) {
         const updatedBook: Book = {
             ...book,
             ...formData,
-            genres: formData.genres.split(",").map(genre => genre.trim()),
             isbn: book?.isbn || "",
             validationStatus: book?.validationStatus || "PENDING"
         };

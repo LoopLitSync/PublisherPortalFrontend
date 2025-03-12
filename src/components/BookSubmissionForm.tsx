@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { submitBook } from "../api/BookService";
+import React, { useEffect, useState } from "react";
+import { fetchGenres, fetchLanguages, submitBook } from "../api/BookService";
 import { Book } from "../models/Book";
 
 const BookSubmissionForm = () => {
@@ -9,11 +9,32 @@ const BookSubmissionForm = () => {
     { firstName: "", lastName: "" },
   ]);
   const [language, setLanguage] = useState("");
-  const [genre, setGenre] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [genres, setGenres] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>([]);
   const [publicationDate, setPublicationDate] = useState("");
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const loadGenresAndLanguages = async () => {
+      try {
+        const fetchedGenres = await fetchGenres();
+        const fetchedLanguages = await fetchLanguages(); 
+        setGenres(fetchedGenres);
+        setLanguages(fetchedLanguages);
+      } catch (error) {
+        console.error("Error fetching genres or languages:", error);
+      }
+    };
+    loadGenresAndLanguages();
+  }, []);
+
+  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setSelectedGenres(selectedOptions);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,33 +46,33 @@ const BookSubmissionForm = () => {
       publicationDate,
       authorFirstName: authors[0]?.firstName || "",
       authorLastName: authors[0]?.lastName || "",
-      genres: [genre],
-      language,
+      genres: selectedGenres,
       coverImg: coverImage,
+      language, 
     };
 
     const resetForm = () => {
-        setTitle("");
-        setIsbn("");
-        setAuthors([{ firstName: "", lastName: "" }]);
-        setLanguage("");
-        setGenre("");
-        setPublicationDate("");
-        setCoverImage(null);
-        setDescription("");
-      };
+      setTitle("");
+      setIsbn("");
+      setAuthors([{ firstName: "", lastName: "" }]);
+      setLanguage(""); 
+      setSelectedGenres([]);
+      setPublicationDate("");
+      setCoverImage(null);
+      setDescription("");
+    };
 
     try {
-        const result = await submitBook(bookData);
-        if (result) {
-          setMessage("Book submitted successfully!");
-          resetForm();
-        } else {
-          setMessage("Failed to submit the book. Please try again.");
-        }
-      } catch {
-        setMessage("An error occurred while submitting the book.");
+      const result = await submitBook(bookData);
+      if (result) {
+        setMessage("Book submitted successfully!");
+        resetForm();
+      } else {
+        setMessage("Failed to submit the book. Please try again.");
       }
+    } catch {
+      setMessage("An error occurred while submitting the book.");
+    }
   };
 
   return (
@@ -136,24 +157,36 @@ const BookSubmissionForm = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Language</label>
-            <input
-              type="text"
+            <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
+            >
+              <option value="">Select a language</option>
+              {languages.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Genre</label>
-            <input
-              type="text"
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
+            <label className="block text-sm font-medium text-gray-700">Genres</label>
+            <select
+              multiple
+              value={selectedGenres}
+              onChange={handleGenreChange}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
+            >
+              {genres.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

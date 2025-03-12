@@ -55,7 +55,7 @@ const BookBulkUpload = () => {
   });
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4 text-center">Bulk Upload Books</h2>
       <div {...getRootProps()} className="border-2 border-dashed border-gray-300 bg-gray-100 text-gray-500 text-center py-10 rounded-lg cursor-pointer">
         <input {...getInputProps()} />

@@ -31,3 +31,27 @@ export const submitBook = async (bookData: Partial<Book>): Promise<Book | null> 
     return null;
   }
 };
+
+export const fetchGenres = async (): Promise<string[]> => {
+  try {
+    const response = await fetch(API_URL + "/genrexs");
+    if (!response.ok) throw new Error("Failed to fetch genres");
+    return await response.json(); 
+  } catch (error) {
+    console.error("Error fetching genres:", error);
+    return [];
+  }
+};
+
+export const fetchLanguages = async (): Promise<string[]> => {
+  try {
+    const response = await fetch(API_URL + "/languages");
+    if (!response.ok) throw new Error("Failed to fetch genres");
+    return await response.json(); 
+  } catch (error) {
+    console.error("Error fetching genres:", error);
+    return [];
+  }
+};
+
+

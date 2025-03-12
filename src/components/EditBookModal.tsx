@@ -21,6 +21,8 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         coverImg: "",
     });
 
+    const languages = ["English", "Norwegian", "Danish", "Swedish", "Spanish", "French", "German"];
+
     useEffect(() => {
         if (book) {
             setFormData({
@@ -36,7 +38,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         }
     }, [book]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
@@ -89,7 +91,21 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     <input className="w-full p-2 border rounded" name="authorFirstName" value={formData.authorFirstName} onChange={handleChange} placeholder="Author First Name" />
                     <input className="w-full p-2 border rounded" name="authorLastName" value={formData.authorLastName} onChange={handleChange} placeholder="Author Last Name" />
                     <textarea className="w-full p-2 border rounded" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
-                    <input className="w-full p-2 border rounded" name="language" value={formData.language} onChange={handleChange} placeholder="Language" />
+                    
+                    <select
+                        className="w-full p-2 border rounded"
+                        name="language"
+                        value={formData.language}
+                        onChange={handleChange}
+                    >
+                        <option value="" disabled>Select Language</option>
+                        {languages.map((language) => (
+                            <option key={language} value={language}>
+                                {language}
+                            </option>
+                        ))}
+                    </select>
+
                     <input className="w-full p-2 border rounded" type="date" name="publicationDate" value={formData.publicationDate} onChange={handleChange} />
                     <input className="w-full p-2 border rounded" name="genres" value={formData.genres} onChange={handleChange} placeholder="Genres" />
                     <div className="flex justify-end gap-2">

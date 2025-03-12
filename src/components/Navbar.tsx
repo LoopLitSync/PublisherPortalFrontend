@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import keycloak from '../keycloak';
 import { Publisher } from '../models/Publisher';
-import { fetchPublisherById } from '../api/PublisherService';
+// import { fetchPublisherById } from '../api/PublisherService';
 
 
 const Navbar: React.FC = () => {
@@ -10,22 +10,21 @@ const Navbar: React.FC = () => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [publisher, setPublisher] = useState<Publisher | null>(null); 
 
-    // if(localStorage.getItem('publisher')) {
-    //     const currentPublisher = JSON.parse(localStorage.getItem('publisher') || '{}');
-    //     setPublisher(currentPublisher);
-    // }
-
     useEffect(() => {
-        // fetchPublisherById(publisher.id).then(setPublisher); 
-        fetchPublisherById(1).then(setPublisher); 
+        const currentPublisher = localStorage.getItem("loggedInPublisher");
+        if (currentPublisher) {
+            setPublisher(JSON.parse(currentPublisher));
+        }
     }, []);
 
-    // console.log(publisher);
 
     const profileMenuRef = useRef<HTMLDivElement>(null);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-    const handleLogout = () => { keycloak.logout({ redirectUri: window.location.origin }); };
+    const handleLogout = () => { 
+        keycloak.logout({ redirectUri: window.location.origin }); 
+        localStorage.clear();
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

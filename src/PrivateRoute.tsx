@@ -13,6 +13,36 @@ const PrivateRoute = () => {
         }
     }, []);
 
+    useEffect(() => {
+        if (keycloak.authenticated) {
+            const publisher = keycloak.tokenParsed;
+            const publisherData = {
+                keycloakId: publisher?.sub,
+                name: publisher?.preferred_username,
+                email: publisher?.email,
+                picture: publisher?.picture,
+                isEnabled: true, 
+            };
+
+            fetch("http://localhost:8081/api/v1/publishers", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${keycloak.token}`,
+                },
+                body: JSON.stringify(publisherData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Publisher registered:", data);
+                    localStorage.setItem('loggedInPublisher', JSON.stringify(data));
+                })
+                .catch(error => {
+                    console.error("Error registering publisher:", error);
+                });
+        }
+    }, []); 
+
     if (isAuthenticated === null || (!isAuthenticated && loginUrl === null)) {
         return <div>Loading...</div>;
     }
@@ -21,5 +51,3 @@ const PrivateRoute = () => {
 };
 
 export default PrivateRoute;
-
-

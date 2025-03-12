@@ -34,7 +34,7 @@ export const submitBook = async (bookData: Partial<Book>): Promise<Book | null> 
 
 export const fetchGenres = async (): Promise<string[]> => {
   try {
-    const response = await fetch(API_URL + "/genrexs");
+    const response = await fetch(API_URL + "/genres");
     if (!response.ok) throw new Error("Failed to fetch genres");
     return await response.json(); 
   } catch (error) {

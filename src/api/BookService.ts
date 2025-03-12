@@ -21,3 +21,18 @@ export const fetchBookByIsbn = async (isbn: string): Promise<Book> => {
   return response.json();
 };
 
+export const fetchLanguages = async (): Promise<string[]> => {
+  const response = await fetch(API_URL + "/languages");
+  if (!response.ok) {
+      throw new Error("Failed to fetch languages");
+  }
+  return response.json();
+};
+
+export const fetchGenres = async (): Promise<string[]> => {
+  const response = await fetch(API_URL + "/genres");
+  if (!response.ok) {
+      throw new Error("Failed to fetch genres");
+  }
+  return response.json();
+};

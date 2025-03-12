@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Book } from "../models/Book";
 import Button from "./Button";
 import { validateForm, Errors } from "../utils/validation";
+import { fetchLanguages, fetchGenres } from "../api/BookService";
 
 interface EditBookModalProps {
     book: Book;
@@ -41,10 +42,23 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         genres: "",
     });
 
-    const languages = ["English", "Norwegian", "Danish", "Swedish", "Spanish", "French", "German"];
+    const [languages, setLanguages] = useState<string[]>([]);
+    const [availableGenres, setAvailableGenres] = useState<string[]>([]);
 
-    const availableGenres = ["Fiction", "Non-Fiction", "Science Fiction", "Fantasy", "Mystery", "Romance", "Biography", "History", "Thriller"];
-
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const fetchedLanguages = await fetchLanguages();
+                const fetchedGenres = await fetchGenres();
+                setLanguages(fetchedLanguages);
+                setAvailableGenres(fetchedGenres);
+            } catch (error) {
+                console.error("Error fetching languages and genres:", error);
+            }
+        };
+        fetchData();
+    }, []);
+    
     useEffect(() => {
         if (book) {
             setFormData({

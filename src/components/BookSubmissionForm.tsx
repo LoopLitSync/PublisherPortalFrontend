@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { fetchGenres, fetchLanguages, submitBook } from "../api/BookService";
 import { Book } from "../models/Book";
+import { Author } from "../models/Author";
 
 const BookSubmissionForm = () => {
   const [title, setTitle] = useState("");
   const [isbn, setIsbn] = useState("");
-  const [authors, setAuthors] = useState<{ firstName: string; lastName: string }[]>([
-    { firstName: "", lastName: "" },
-  ]);
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [language, setLanguage] = useState("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [genres, setGenres] = useState<string[]>([]);
@@ -38,30 +37,33 @@ const BookSubmissionForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     const bookData: Partial<Book> = {
       isbn,
       title,
       description,
       publicationDate,
-      authorFirstName: authors[0]?.firstName || "",
-      authorLastName: authors[0]?.lastName || "",
+      authors: authors.map((author) => ({
+        firstName: author.firstName,
+        lastName: author.lastName,
+        year: author.year || null,
+      })),
       genres: selectedGenres,
       coverImg: coverImage,
-      language, 
+      language,
     };
-
+  
     const resetForm = () => {
       setTitle("");
       setIsbn("");
-      setAuthors([{ firstName: "", lastName: "" }]);
-      setLanguage(""); 
+      setAuthors([{ firstName: "", lastName: "", year: null}]);
+      setLanguage("");
       setSelectedGenres([]);
       setPublicationDate("");
       setCoverImage(null);
       setDescription("");
     };
-
+  
     try {
       const result = await submitBook(bookData);
       if (result) {
@@ -104,56 +106,70 @@ const BookSubmissionForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Authors</label>
-            {authors.map((author, index) => (
-              <div key={index} className="flex space-x-4 mb-2">
-                <input
-                  type="text"
-                  value={author.firstName}
-                  onChange={(e) =>
-                    setAuthors((prev) =>
-                      prev.map((a, i) =>
-                        i === index ? { ...a, firstName: e.target.value } : a
-                      )
+          <label className="block text-sm font-medium text-gray-700">Authors</label>
+          {authors.map((author, index) => (
+            <div key={index} className="flex space-x-4 mb-2">
+              <input
+                type="text"
+                value={author.firstName}
+                onChange={(e) =>
+                  setAuthors((prev) =>
+                    prev.map((a, i) =>
+                      i === index ? { ...a, firstName: e.target.value } : a
                     )
-                  }
-                  placeholder="First Name"
-                  required
-                  className="mt-1 block w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                />
-                <input
-                  type="text"
-                  value={author.lastName}
-                  onChange={(e) =>
-                    setAuthors((prev) =>
-                      prev.map((a, i) =>
-                        i === index ? { ...a, lastName: e.target.value } : a
-                      )
+                  )
+                }
+                placeholder="First Name"
+                required
+                className="mt-1 block w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
+              <input
+                type="text"
+                value={author.lastName}
+                onChange={(e) =>
+                  setAuthors((prev) =>
+                    prev.map((a, i) =>
+                      i === index ? { ...a, lastName: e.target.value } : a
                     )
-                  }
-                  placeholder="Last Name"
-                  required
-                  className="mt-1 block w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setAuthors((prev) => prev.filter((_, i) => i !== index))
-                  }
-                  className="text-red-500 hover:text-red-700"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => setAuthors((prev) => [...prev, { firstName: "", lastName: "" }])}
-              className="text-indigo-600 hover:text-indigo-800"
-            >
-              Add Author
-            </button>
-          </div>
+                  )
+                }
+                placeholder="Last Name"
+                required
+                className="mt-1 block w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
+              <input
+                type="number"
+                value={author.year || ""}
+                onChange={(e) =>
+                  setAuthors((prev) =>
+                    prev.map((a, i) =>
+                      i === index ? { ...a, year: Number(e.target.value) } : a
+                    )
+                  )
+                }
+                
+                placeholder="Year"
+                className="mt-1 block w-1/4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  setAuthors((prev) => prev.filter((_, i) => i !== index))
+                }
+                className="text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => setAuthors((prev) => [...prev, { firstName: "", lastName: "", year: null }])}
+            className="text-indigo-600 hover:text-indigo-800"
+          >
+            Add Author
+          </button>
+        </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Language</label>

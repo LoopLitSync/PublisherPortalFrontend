@@ -1,10 +1,11 @@
+import { Author } from "./Author";
+
 export interface Book {
     isbn: string;
     title: string;
     description: string;
     publicationDate: string;
-    authorFirstName: string;
-    authorLastName: string;
+    authors: Author[];
     genres: string[];
     language: string;
     coverImg?: string | null;

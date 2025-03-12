@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Book } from "../models/Book";
 import Button from "./Button";
+import { validateForm, Errors } from "../utils/validation";
 
 interface EditBookModalProps {
     book: Book;
@@ -19,6 +20,16 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         publicationDate: "",
         genres: "",
         coverImg: "",
+    });
+
+    const [errors, setErrors] = useState<Errors>({
+        title: "",
+        authorFirstName: "",
+        authorLastName: "",
+        description: "",
+        language: "",
+        publicationDate: "",
+        genres: "",
     });
 
     const languages = ["English", "Norwegian", "Danish", "Swedish", "Spanish", "French", "German"];
@@ -60,8 +71,12 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await onSave(formData);
-        onClose();
+        const { isValid, errors } = validateForm(formData);
+        if (isValid) {
+            await onSave(formData);
+            onClose();
+        }
+        setErrors(errors);
     };
 
     if (!isOpen) return null;
@@ -88,9 +103,16 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     </div>
 
                     <input className="w-full p-2 border rounded" name="title" value={formData.title} onChange={handleChange} placeholder="Title" />
+                    {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
+
                     <input className="w-full p-2 border rounded" name="authorFirstName" value={formData.authorFirstName} onChange={handleChange} placeholder="Author First Name" />
+                    {errors.authorFirstName && <p className="text-red-500 text-sm">{errors.authorFirstName}</p>}
+
                     <input className="w-full p-2 border rounded" name="authorLastName" value={formData.authorLastName} onChange={handleChange} placeholder="Author Last Name" />
+                    {errors.authorLastName && <p className="text-red-500 text-sm">{errors.authorLastName}</p>}
+
                     <textarea className="w-full p-2 border rounded" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
+                    {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
                     
                     <select
                         className="w-full p-2 border rounded"
@@ -105,9 +127,14 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                             </option>
                         ))}
                     </select>
+                    {errors.language && <p className="text-red-500 text-sm">{errors.language}</p>}
 
                     <input className="w-full p-2 border rounded" type="date" name="publicationDate" value={formData.publicationDate} onChange={handleChange} />
+                    {errors.publicationDate && <p className="text-red-500 text-sm">{errors.publicationDate}</p>}
+
                     <input className="w-full p-2 border rounded" name="genres" value={formData.genres} onChange={handleChange} placeholder="Genres" />
+                    {errors.genres && <p className="text-red-500 text-sm">{errors.genres}</p>}
+                    
                     <div className="flex justify-end gap-2">
                         <button type="button" className="px-4 py-2 bg-gray-400 text-white rounded-lg" onClick={onClose}>Cancel</button>
                         <Button text="Save" />

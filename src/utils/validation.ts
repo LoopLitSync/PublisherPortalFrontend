@@ -1,7 +1,8 @@
+import { Author } from "../models/Author";
+
 export interface FormData {
     title: string;
-    authorFirstName: string;
-    authorLastName: string;
+    authors: Author[];
     description: string;
     language: string;
     publicationDate: string;
@@ -10,8 +11,7 @@ export interface FormData {
 
 export interface Errors {
     title: string;
-    authorFirstName: string;
-    authorLastName: string;
+    authors: string;
     description: string;
     language: string;
     publicationDate: string;
@@ -21,8 +21,7 @@ export interface Errors {
 export function validateForm(formData: FormData): { isValid: boolean; errors: Errors } {
     const errors: Errors = {
         title: "",
-        authorFirstName: "",
-        authorLastName: "",
+        authors: "",
         description: "",
         language: "",
         publicationDate: "",
@@ -36,13 +35,8 @@ export function validateForm(formData: FormData): { isValid: boolean; errors: Er
         isValid = false;
     }
 
-    if (!formData.authorFirstName) {
-        errors.authorFirstName = "Author first name is required";
-        isValid = false;
-    }
-
-    if (!formData.authorLastName) {
-        errors.authorLastName = "Author last name is required";
+    if (!formData.authors) {
+        errors.authors = "Author is required";
         isValid = false;
     }
 

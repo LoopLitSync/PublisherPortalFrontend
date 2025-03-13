@@ -3,20 +3,20 @@ import { Book } from "../models/Book";
 import Button from "./Button";
 import { validateForm, Errors } from "../utils/validation";
 import { fetchLanguages, fetchGenres } from "../api/BookService";
+import { Author } from "../models/Author";
 
 interface EditBookModalProps {
     book: Book;
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: { id: number, title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string[]; }) => Promise<void>;
+    onSave: (formData: { id: number, title: string; authors: Author[]; description: string; language: string; publicationDate: string; genres: string[]; }) => Promise<void>;
 }
 
 function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const [formData, setFormData] = useState<{
         id: number,
         title: string;
-        authorFirstName: string;
-        authorLastName: string;
+        authors: Author[];
         description: string;
         language: string;
         publicationDate: string;
@@ -25,8 +25,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     }>({
         id: book.id,
         title: "",
-        authorFirstName: "",
-        authorLastName: "",
+        authors: [],
         description: "",
         language: "",
         publicationDate: "",
@@ -36,8 +35,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
     const [errors, setErrors] = useState<Errors>({
         title: "",
-        authorFirstName: "",
-        authorLastName: "",
+        authors: "",
         description: "",
         language: "",
         publicationDate: "",
@@ -66,8 +64,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
             setFormData({
                 id: book.id,
                 title: book.title,
-                authorFirstName: book.authorFirstName,
-                authorLastName: book.authorLastName,
+                authors: book.authors || [],
                 description: book.description,
                 language: book.language,
                 publicationDate: book.publicationDate,
@@ -113,6 +110,26 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         }));
     };
 
+    const handleAuthorChange = (index: number, field: keyof Author, value: string) => {
+        const updatedAuthors = [...formData.authors];
+        updatedAuthors[index] = { ...updatedAuthors[index], [field]: value };
+        setFormData({ ...formData, authors: updatedAuthors });
+    };
+
+    const addAuthor = () => {
+        setFormData({
+            ...formData,
+            authors: [...formData.authors, { firstName: "", lastName: "" }],
+        });
+    };
+
+    const removeAuthor = (index: number) => {
+        setFormData({
+            ...formData,
+            authors: formData.authors.filter((_, i) => i !== index),
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const { isValid, errors } = validateForm(formData);
@@ -148,12 +165,40 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
                     <input className="w-full p-2 border rounded" name="title" value={formData.title} onChange={handleChange} placeholder="Title" />
                     {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
-
-                    <input className="w-full p-2 border rounded" name="authorFirstName" value={formData.authorFirstName} onChange={handleChange} placeholder="Author First Name" />
-                    {errors.authorFirstName && <p className="text-red-500 text-sm">{errors.authorFirstName}</p>}
-
-                    <input className="w-full p-2 border rounded" name="authorLastName" value={formData.authorLastName} onChange={handleChange} placeholder="Author Last Name" />
-                    {errors.authorLastName && <p className="text-red-500 text-sm">{errors.authorLastName}</p>}
+                    
+                    <div>
+                        <label className="text-lg">Authors</label>
+                        {formData.authors.map((author, index) => (
+                            <div key={index} className="flex items-center gap-2 mb-2">
+                                <input
+                                    type="text"
+                                    placeholder="First Name"
+                                    value={author.firstName}
+                                    onChange={(e) => handleAuthorChange(index, "firstName", e.target.value)}
+                                    className="w-1/2 p-2 border rounded">
+                                </input>
+                                <input
+                                    type="text"
+                                    placeholder="Last Name"
+                                    value={author.lastName}
+                                    onChange={(e) => handleAuthorChange(index, "lastName", e.target.value)}
+                                    className="w-1/2 p-2 border rounded">
+                                </input>
+                                <button
+                                type="button"
+                                onClick={() => removeAuthor(index)}
+                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                >✖
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                        type="button"
+                        onClick={addAuthor}
+                        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+                        >+ Add Author
+                        </button>
+                    </div>
 
                     <textarea className="w-full p-2 border rounded" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
                     {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}

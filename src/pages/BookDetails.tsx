@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Book } from "../models/Book";
 import { fetchBookById } from "../api/BookService";
 import EditBookModal from "../components/EditBookModal.tsx";
+import { Author } from "../models/Author.ts";
 
 function BookDetails() {
     const { id } = useParams();
@@ -17,7 +18,7 @@ function BookDetails() {
         }
     }, [id]);
 
-    async function handleSave (formData: { id: number, title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string[]; }) {
+    async function handleSave (formData: { id: number, title: string; authors: Author[]; description: string; language: string; publicationDate: string; genres: string[]; }) {
         const updatedBook: Book = {
             ...book,
             ...formData,
@@ -50,7 +51,7 @@ function BookDetails() {
             </div>
             <div className="flex flex-col gap-5">
                 <h1 className="text-5xl text-black">{book.title}</h1>
-                <p>{book.authorFirstName} {book.authorLastName}</p>
+                <p>{book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", ")}</p>
                 <p>{book.isbn}</p>
                 <p>{book.description}</p>
                 <hr></hr>

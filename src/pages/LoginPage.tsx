@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import Keycloak from "keycloak-js";
-import { initializeKeycloak } from '../keycloak';
-
-// import { useKeycloak } from '@react-keycloak/web';
+import { initializeKeycloak } from "../keycloak";
+// import { Publisher } from "../models/Publisher";
 
 const LoginPage: React.FC = () => {
     const [keycloak, setKeycloak] = useState<Keycloak | null>(null);
-    // const [authenticated, setAuthenticated] = useState<boolean | undefined>(false);
 
     useEffect(() => {
         initializeKeycloak()
@@ -19,12 +17,8 @@ const LoginPage: React.FC = () => {
             });
     }, []);
 
-    if (!keycloak) {
-        return <div>Loading...</div>;
-    }
-
     const login = () => {
-        keycloak.login();
+        keycloak?.login();
     };
 
     return (

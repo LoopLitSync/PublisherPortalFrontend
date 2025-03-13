@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Button from '../components/Button';
 import { Publisher } from '../models/Publisher';
-import { fetchPublisherById } from '../api/PublisherService';
-import { useParams } from "react-router-dom";
 
 const PublisherProfile: React.FC = () => {
-    const { id } = useParams(); // Retrieve the ID from URL params
-    // console.log("useParams: " + id);
-    const [publisher, setPublisher] = useState<Publisher | null>(null); // Publisher state
+    const [publisher, setPublisher] = useState<Publisher | null>(null); 
 
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -15,23 +11,15 @@ const PublisherProfile: React.FC = () => {
             document.body.style.overflow = 'auto';
         }
     });
-    
+
     useEffect(() => {
-        // console.log('Fetching publisher for id:', id); // Check if id is being passed
-        if (id) {
-            fetchPublisherById(Number(id))
-                .then((data) => {
-                    // console.log('Fetched publisher:', data); // Log the fetched data
-                    setPublisher(data);
-                })
-                .catch((error) => {
-                    console.error('Error fetching publisher:', error);
-                });
+        const currentPublisher = localStorage.getItem("loggedInPublisher");
+        if (currentPublisher) {
+            setPublisher(JSON.parse(currentPublisher));
         }
-    }, [id]);
-    
+    }, []);
+
     if (!publisher) {
-        // Loading state
         return <p className="text-center mt-10">Loading publisher details...</p>;
     }
 

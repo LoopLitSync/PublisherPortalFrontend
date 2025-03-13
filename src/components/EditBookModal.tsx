@@ -189,7 +189,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                                 type="button"
                                 onClick={() => removeAuthor(index)}
                                 className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                                >✖
+                                >&times;
                                 </button>
                             </div>
                         ))}
@@ -266,7 +266,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                         <Button text="Save" />
                     </div>
                 </form>
-                <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-lg">✖</button>
+                <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-lg">&times;</button>
             </div>
         </div>
     );

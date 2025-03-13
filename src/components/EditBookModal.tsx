@@ -119,7 +119,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const addAuthor = () => {
         setFormData({
             ...formData,
-            authors: [...formData.authors, { firstName: "", lastName: "" }],
+            authors: [...formData.authors, { firstName: "", lastName: "", year: null }],
         });
     };
 
@@ -183,6 +183,13 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                                     placeholder="Last Name"
                                     value={author.lastName}
                                     onChange={(e) => handleAuthorChange(index, "lastName", e.target.value)}
+                                    className="w-1/2 p-2 border rounded">
+                                </input>
+                                <input
+                                    type="text"
+                                    placeholder="Year of Birth"
+                                    value={author.year || ""}
+                                    onChange={(e) => handleAuthorChange(index, "year", e.target.value)}
                                     className="w-1/2 p-2 border rounded">
                                 </input>
                                 <button

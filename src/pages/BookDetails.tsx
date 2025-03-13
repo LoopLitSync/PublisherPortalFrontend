@@ -3,7 +3,7 @@ import statusComponents from "../components/validationStatus/StatusComponents.ts
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Book } from "../models/Book";
-import { fetchBookById } from "../api/BookService";
+import { fetchBookById, updateBook } from "../api/BookService";
 import EditBookModal from "../components/EditBookModal.tsx";
 import { Author } from "../models/Author.ts";
 import { formatDate } from "../utils/date.ts";
@@ -28,9 +28,14 @@ function BookDetails() {
             submissionDate: book?.submissionDate || "",
             updatedDate: book?.updatedDate || "",
         };
-
-        // await updateBook(isbn, updatedBook);
-        setBook((prev => ({...prev, ...updatedBook})));
+        try {
+            await updateBook(updatedBook.id, updatedBook);
+            setBook(null);
+            const book = await fetchBookById(Number(id));
+            setBook(book);
+        } catch (error) {
+            console.error("Error updating book:", error);
+        }
     }
 
     if (!book) {

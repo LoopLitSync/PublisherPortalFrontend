@@ -36,3 +36,18 @@ export const fetchGenres = async (): Promise<string[]> => {
   }
   return response.json();
 };
+
+export const updateBook = async (id: number, book: Book): Promise<void> => {
+  try {
+    const response = await fetch(API_URL + `/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(book),
+    });
+    if (!response.ok) throw new Error("Failed to update book");
+  } catch (error) {
+    console.error("Error updating book:", error);
+  }
+};

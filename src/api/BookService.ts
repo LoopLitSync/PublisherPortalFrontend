@@ -13,8 +13,29 @@ export const fetchBooks = async (): Promise<Book[]> => {
   }
 };
 
+export const submitBook = async (bookData: Partial<Book>): Promise<Book | null> => {
+  console.log(bookData)
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bookData),
+    });
+
+    if (!response.ok) throw new Error("Failed to submit book");
+    return await response.json();
+  } catch (error) {
+    console.error("Error submitting book:", error);
+    return null;
+  }
+};
+
 export const fetchBookById = async (id: number): Promise<Book> => {
   const response = await fetch(API_URL + `/${id}`);
+  
   if (!response.ok) {
       throw new Error("Failed to fetch book details");
   }

@@ -3,9 +3,16 @@ import { fetchGenres, fetchLanguages, submitBook } from "../api/BookService";
 import { Book } from "../models/Book";
 import { Author } from "../models/Author";
 
+const isValidIsbn = (isbn: string): boolean => {
+  const isbn10Regex = /^(?:\d{9}X|\d{10})$/;
+  const isbn13Regex = /^(?:\d{13})$/;
+  return isbn10Regex.test(isbn) || isbn13Regex.test(isbn);
+};
+
 const BookSubmissionForm = () => {
   const [title, setTitle] = useState("");
   const [isbn, setIsbn] = useState("");
+  const [isbnError, setIsbnError] = useState<string | null>(null);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [language, setLanguage] = useState("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
@@ -20,7 +27,7 @@ const BookSubmissionForm = () => {
     const loadGenresAndLanguages = async () => {
       try {
         const fetchedGenres = await fetchGenres();
-        const fetchedLanguages = await fetchLanguages(); 
+        const fetchedLanguages = await fetchLanguages();
         setGenres(fetchedGenres);
         setLanguages(fetchedLanguages);
       } catch (error) {
@@ -30,6 +37,12 @@ const BookSubmissionForm = () => {
     loadGenresAndLanguages();
   }, []);
 
+  const handleIsbnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9Xx]/g, ""); 
+    setIsbn(value);
+    setIsbnError(isValidIsbn(value) ? null : "Invalid ISBN (must be ISBN-10 or ISBN-13)");
+  };
+
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setSelectedGenres(selectedOptions);
@@ -37,7 +50,8 @@ const BookSubmissionForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+    if (isbnError) return; 
+
     const bookData: Partial<Book> = {
       isbn,
       title,
@@ -52,23 +66,19 @@ const BookSubmissionForm = () => {
       coverImg: coverImage,
       language,
     };
-  
-    const resetForm = () => {
-      setTitle("");
-      setIsbn("");
-      setAuthors([{ firstName: "", lastName: "", year: null}]);
-      setLanguage("");
-      setSelectedGenres([]);
-      setPublicationDate("");
-      setCoverImage(null);
-      setDescription("");
-    };
-  
+
     try {
       const result = await submitBook(bookData);
       if (result) {
         setMessage("Book submitted successfully!");
-        resetForm();
+        setTitle("");
+        setIsbn("");
+        setAuthors([{ firstName: "", lastName: "", year: null }]);
+        setLanguage("");
+        setSelectedGenres([]);
+        setPublicationDate("");
+        setCoverImage(null);
+        setDescription("");
       } else {
         setMessage("Failed to submit the book. Please try again.");
       }
@@ -99,10 +109,13 @@ const BookSubmissionForm = () => {
             <input
               type="text"
               value={isbn}
-              onChange={(e) => setIsbn(e.target.value)}
+              onChange={handleIsbnChange}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className={`mt-1 block w-full px-3 py-2 border ${
+                isbnError ? "border-red-500" : "border-gray-300"
+              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
             />
+            {isbnError && <p className="text-red-500 text-sm mt-1">{isbnError}</p>}
           </div>
 
           <div>
@@ -251,7 +264,10 @@ const BookSubmissionForm = () => {
           <div className="mt-4">
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+              disabled={!!isbnError}
+              className={`w-full py-2 px-4 rounded-md text-white ${
+                isbnError ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+              } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50`}
             >
               Submit Book
             </button>

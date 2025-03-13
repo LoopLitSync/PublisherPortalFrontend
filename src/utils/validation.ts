@@ -35,8 +35,13 @@ export function validateForm(formData: FormData): { isValid: boolean; errors: Er
         isValid = false;
     }
 
-    if (!formData.authors) {
+    if (formData.authors.length === 0) {
         errors.authors = "Author is required";
+        isValid = false;
+    }
+
+    if (formData.authors.some(author => !author.firstName || !author.lastName)) {
+        errors.authors = "Author must have both first and last name";
         isValid = false;
     }
 

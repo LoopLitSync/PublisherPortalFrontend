@@ -144,7 +144,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 backdrop-blur-xs z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full relative">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full relative max-h-[80vh] overflow-y-auto">
                 <h2 className="text-2xl mb-4">Edit Book</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="flex flex-col items-center">
@@ -195,10 +195,11 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                         <button
                         type="button"
                         onClick={addAuthor}
-                        className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+                        className="bg-[#8075FF] text-white px-2 py-1 rounded hover:bg-[#7971d0]"
                         >+ Add Author
                         </button>
                     </div>
+                    {errors.authors && <p className="text-red-500 text-sm">{errors.authors}</p>}
 
                     <textarea className="w-full p-2 border rounded" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
                     {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}

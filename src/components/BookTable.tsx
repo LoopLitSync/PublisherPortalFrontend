@@ -44,7 +44,7 @@ const BookTable = () => {
             books.map((book, index) => (
               <tr key={index} 
               className="hover:bg-gray-100 border-b border-black"
-              onClick={() => navigate(`/book/${book.isbn}`)}>
+              onClick={() => navigate(`/book/${book.id}`)}>
                 <td className="p-3 border-r border-black">{book.isbn}</td>
                 <td className="p-3 border-r border-black">{book.title}</td>
                 <td className="p-3 border-r border-black">{book.description}</td>

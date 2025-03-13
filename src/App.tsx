@@ -18,7 +18,7 @@ function App() {
                   <Route path="/book-submission" element={<BookSubmission />} />
                   <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
                   <Route path="/publisher-profile" element={<PublisherProfile />} />
-                  <Route path="/book/:isbn" element={<BookDetails />} />
+                  <Route path="/book/:id" element={<BookDetails />} />
               </Route>
           </Routes>
       </Router>

@@ -10,20 +10,19 @@ import PrivateRoute from './PrivateRoute';
 
 
 function App() {
-    return (
-        <Router>
-            <Navbar />
-            <Routes>
-                <Route element={<PrivateRoute />}>
-                    <Route path="/" element={<PublisherDashboard />} />
-                    <Route path="/book-submission" element={<BookSubmission />} />
-                    <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
-                    <Route path="/publisher-profile" element={<PublisherProfile />} />
-                    <Route path="/book/:isbn" element={<BookDetails />} />
-                </Route>
-            </Routes>
-        </Router>
-    );
+  return (
+      <Router>
+          <Navbar />
+          <Routes>
+              <Route element={<PrivateRoute />}>
+                  <Route path="/book-submission" element={<BookSubmission />} />
+                  <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
+                  <Route path="/publisher-profile" element={<PublisherProfile />} />
+                  <Route path="/book/:id" element={<BookDetails />} />
+              </Route>
+          </Routes>
+      </Router>
+  );
 }
 
 export default App;

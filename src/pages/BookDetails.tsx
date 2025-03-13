@@ -3,17 +3,40 @@ import statusComponents from "../components/validationStatus/StatusComponents.ts
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Book } from "../models/Book";
-import { fetchBookByIsbn } from "../api/BookService";
+import { fetchBookById, updateBook } from "../api/BookService";
+import EditBookModal from "../components/EditBookModal.tsx";
+import { Author } from "../models/Author.ts";
+import { formatDate } from "../utils/date.ts";
 
 function BookDetails() {
-    const { isbn } = useParams();
+    const { id } = useParams();
     const [book, setBook] = useState<Book | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
-        if (isbn) {
-            fetchBookByIsbn(isbn).then(setBook);
+        if (id) {
+            fetchBookById(Number(id)).then(setBook);
         }
-    }, [isbn]);
+    }, [id]);
+
+    async function handleSave (formData: { id: number, title: string; authors: Author[]; description: string; language: string; publicationDate: string; genres: string[]; }) {
+        const updatedBook: Book = {
+            ...book,
+            ...formData,
+            isbn: book?.isbn || "",
+            validationStatus: book?.validationStatus || "PENDING",
+            submissionDate: book?.submissionDate || "",
+            updatedDate: book?.updatedDate || "",
+        };
+        try {
+            await updateBook(updatedBook.id, updatedBook);
+            setBook(null);
+            const book = await fetchBookById(Number(id));
+            setBook(book);
+        } catch (error) {
+            console.error("Error updating book:", error);
+        }
+    }
 
     if (!book) {
         return <p className="text-center mt-10">Loading book details...</p>;
@@ -34,7 +57,7 @@ function BookDetails() {
             </div>
             <div className="flex flex-col gap-5">
                 <h1 className="text-5xl text-black">{book.title}</h1>
-                <p>{book.authorFirstName} {book.authorLastName}</p>
+                <p>{book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", ")}</p>
                 <p>{book.isbn}</p>
                 <p>{book.description}</p>
                 <hr></hr>
@@ -53,6 +76,14 @@ function BookDetails() {
                     ))}
                 </div>
                 <hr></hr>
+                <div className="flex flex-row gap-2">
+                    <p>Submitted:</p>
+                    <p>{formatDate(book.submissionDate)}</p>
+                </div>
+                <div className='flex flex-row gap-2'>
+                    <p>Last updated:</p>
+                    <p>{formatDate(book.updatedDate)}</p>
+                </div>
                 <div className='flex flex-row gap-2'>
                     <p>Validation status:</p>
                     <StatusComponent />
@@ -62,8 +93,14 @@ function BookDetails() {
                         <p>{book.validationStatus}</p>
                     )} 
                 </div>
-                <Button text="Edit"></Button>
+                <Button onClick={() => setIsEditModalOpen(true)} text="Edit"></Button>
             </div>
+            <EditBookModal
+                book={book}
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleSave}>
+            </EditBookModal>
         </div>
     )
 }

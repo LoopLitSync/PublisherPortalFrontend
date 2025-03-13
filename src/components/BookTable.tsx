@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchBooks } from "../api/BookService";
 import { Book } from "../models/Book";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from "../utils/date.ts";
 
 const BookTable = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -9,7 +10,7 @@ const BookTable = () => {
 
   useEffect(() => {
     fetchBooks().then(setBooks);
-  }, []);
+  }, []); 
 
   return (
     <div className="p-6">
@@ -29,13 +30,13 @@ const BookTable = () => {
             books.map((book, index) => (
               <tr key={index} 
               className="hover:bg-gray-100 border-b border-black"
-              onClick={() => navigate(`/book/${book.isbn}`)}>
+              onClick={() => navigate(`/book/${book.id}`)}>
                 <td className="p-3 border-r border-black">{book.isbn}</td>
                 <td className="p-3 border-r border-black">{book.title}</td>
                 <td className="p-3 border-r border-black">{book.description}</td>
-                <td className="p-3 border-r border-black">{book.publicationDate}</td>
-                <td className="p-3 border-r border-black">-</td>
-                <td className="p-3">-</td>
+                <td className="p-3 border-r border-black">{formatDate(book.submissionDate)}</td>
+                <td className="p-3 border-r border-black">{formatDate(book.updatedDate)}</td>
+                <td className="p-3 border-r border-black">{book.validationStatus}</td>
               </tr>
             ))
           ) : (

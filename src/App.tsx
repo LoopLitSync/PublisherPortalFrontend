@@ -20,7 +20,7 @@ function App() {
                         <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
                         <Route path="/publisher-profile" element={<PublisherProfile />} />
                         <Route path="/publisher-profile/:id" element={<PublisherProfile />} />
-                        <Route path="/book/:isbn" element={<BookDetails />} />
+                        <Route path="/book/:id" element={<BookDetails />} />
                     </Route>
                 </Routes>
             </Router>

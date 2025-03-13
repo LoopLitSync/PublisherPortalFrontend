@@ -8,11 +8,12 @@ interface EditBookModalProps {
     book: Book;
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: { title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string[]; }) => Promise<void>;
+    onSave: (formData: { id: number, title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string[]; }) => Promise<void>;
 }
 
 function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const [formData, setFormData] = useState<{
+        id: number,
         title: string;
         authorFirstName: string;
         authorLastName: string;
@@ -22,6 +23,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         genres: string[];
         coverImg: string;
     }>({
+        id: book.id,
         title: "",
         authorFirstName: "",
         authorLastName: "",
@@ -62,6 +64,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     useEffect(() => {
         if (book) {
             setFormData({
+                id: book.id,
                 title: book.title,
                 authorFirstName: book.authorFirstName,
                 authorLastName: book.authorLastName,

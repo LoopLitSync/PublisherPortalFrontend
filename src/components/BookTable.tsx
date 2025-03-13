@@ -11,6 +11,21 @@ const BookTable = () => {
     fetchBooks().then(setBooks);
   }, []);
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date
+      .toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false, 
+      })
+      .replace(",", ""); 
+  };  
+
   return (
     <div className="p-6">
       <table className="w-full border border-black bg-white shadow-lg">
@@ -33,9 +48,9 @@ const BookTable = () => {
                 <td className="p-3 border-r border-black">{book.isbn}</td>
                 <td className="p-3 border-r border-black">{book.title}</td>
                 <td className="p-3 border-r border-black">{book.description}</td>
-                <td className="p-3 border-r border-black">{book.publicationDate}</td>
-                <td className="p-3 border-r border-black">-</td>
-                <td className="p-3">-</td>
+                <td className="p-3 border-r border-black">{formatDate(book.submissionDate)}</td>
+                <td className="p-3 border-r border-black">{formatDate(book.updatedDate)}</td>
+                <td className="p-3 border-r border-black">{book.validationStatus}</td>
               </tr>
             ))
           ) : (

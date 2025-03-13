@@ -3,26 +3,28 @@ import statusComponents from "../components/validationStatus/StatusComponents.ts
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Book } from "../models/Book";
-import { fetchBookByIsbn } from "../api/BookService";
+import { fetchBookById } from "../api/BookService";
 import EditBookModal from "../components/EditBookModal.tsx";
 
 function BookDetails() {
-    const { isbn } = useParams();
+    const { id } = useParams();
     const [book, setBook] = useState<Book | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
-        if (isbn) {
-            fetchBookByIsbn(isbn).then(setBook);
+        if (id) {
+            fetchBookById(Number(id)).then(setBook);
         }
-    }, [isbn]);
+    }, [id]);
 
-    async function handleSave (formData: { title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string[]; }) {
+    async function handleSave (formData: { id: number, title: string; authorFirstName: string; authorLastName: string; description: string; language: string; publicationDate: string; genres: string[]; }) {
         const updatedBook: Book = {
             ...book,
             ...formData,
             isbn: book?.isbn || "",
-            validationStatus: book?.validationStatus || "PENDING"
+            validationStatus: book?.validationStatus || "PENDING",
+            submissionDate: book?.submissionDate || "",
+            updatedDate: book?.updatedDate || "",
         };
 
         // await updateBook(isbn, updatedBook);

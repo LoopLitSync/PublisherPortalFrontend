@@ -163,6 +163,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                         )}
                     </div>
 
+                    <label className="text-lg">Title</label>
                     <input className="w-full p-2 border rounded" name="title" value={formData.title} onChange={handleChange} placeholder="Title" />
                     {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
                     
@@ -201,9 +202,11 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     </div>
                     {errors.authors && <p className="text-red-500 text-sm">{errors.authors}</p>}
 
+                    <label className="text-lg">Description</label>
                     <textarea className="w-full p-2 border rounded" name="description" value={formData.description} onChange={handleChange} placeholder="Description" />
                     {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
 
+                    <label className="text-lg">Language</label>
                     <select
                         className="w-full p-2 border rounded"
                         name="language"
@@ -219,6 +222,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     </select>
                     {errors.language && <p className="text-red-500 text-sm">{errors.language}</p>}
 
+                    <label className="text-lg">Publication Date</label>
                     <input className="w-full p-2 border rounded" type="date" name="publicationDate" value={formData.publicationDate} onChange={handleChange} />
                     {errors.publicationDate && <p className="text-red-500 text-sm">{errors.publicationDate}</p>}
 

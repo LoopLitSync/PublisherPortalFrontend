@@ -6,6 +6,7 @@ import { Book } from "../models/Book";
 import { fetchBookById } from "../api/BookService";
 import EditBookModal from "../components/EditBookModal.tsx";
 import { Author } from "../models/Author.ts";
+import { formatDate } from "../utils/date.ts";
 
 function BookDetails() {
     const { id } = useParams();
@@ -70,6 +71,14 @@ function BookDetails() {
                     ))}
                 </div>
                 <hr></hr>
+                <div className="flex flex-row gap-2">
+                    <p>Submitted:</p>
+                    <p>{formatDate(book.submissionDate)}</p>
+                </div>
+                <div className='flex flex-row gap-2'>
+                    <p>Last updated:</p>
+                    <p>{formatDate(book.updatedDate)}</p>
+                </div>
                 <div className='flex flex-row gap-2'>
                     <p>Validation status:</p>
                     <StatusComponent />

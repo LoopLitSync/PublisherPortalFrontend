@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import keycloak from '../keycloak';
 
 const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -7,6 +8,8 @@ const Navbar: React.FC = () => {
 
     const profileMenuRef = useRef<HTMLDivElement>(null);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+    const handleLogout = () => { keycloak.logout({redirectUri: window.location.origin }); };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -93,10 +96,10 @@ const Navbar: React.FC = () => {
                 <div className="flex relative" ref={profileMenuRef}>
                     <button
                         onClick={() => setIsProfileMenuOpen((prev) => !prev)}
-                        className="flex items-center space-x-2 text-white focus:outline-none" style={{ cursor:"pointer" }}>
+                        className="flex items-center space-x-2 text-white focus:outline-none" style={{ cursor: "pointer" }}>
                         <span className="hidden md:block">Welcome, User</span>
                         <img
-                            src="public/default_user.png"
+                            src="/default_user.png"
                             alt="Profile"
                             className="w-10 h-10 right-3 rounded-full border border-white" />
 
@@ -115,11 +118,10 @@ const Navbar: React.FC = () => {
                                 <span>My Profile</span>
                             </NavLink>
                             <button
-                                className="flex items-center px-4 py-2 w-full text-red-600 hover:bg-gray-200" style={{ cursor:"pointer" }}
+                                className="flex items-center px-4 py-2 w-full text-red-600 hover:bg-gray-200" style={{ cursor: "pointer" }}
                                 onClick={() => {
+                                    handleLogout();
                                     setIsProfileMenuOpen(false);
-                                    alert("Logging out..."); 
-                                    location.href = "/";
                                 }}>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-5 mr-2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />

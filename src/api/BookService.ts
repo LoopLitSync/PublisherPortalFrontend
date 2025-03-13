@@ -14,6 +14,7 @@ export const fetchBooks = async (): Promise<Book[]> => {
 };
 
 export const submitBook = async (bookData: Partial<Book>): Promise<Book | null> => {
+  console.log(bookData)
   try {
     const response = await fetch(API_URL, {
       method: "POST",
@@ -54,4 +55,12 @@ export const fetchLanguages = async (): Promise<string[]> => {
   }
 };
 
+
+export const fetchBookByIsbn = async (isbn: string): Promise<Book> => {
+  const response = await fetch(API_URL + `/${isbn}`);
+  if (!response.ok) {
+      throw new Error("Failed to fetch book details");
+  }
+  return response.json();
+};
 

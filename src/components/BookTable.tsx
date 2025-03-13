@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { fetchBooks } from "../api/BookService";
 import { Book } from "../models/Book";
+import { useNavigate } from "react-router-dom";
 
 const BookTable = () => {
   const [books, setBooks] = useState<Book[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBooks().then(setBooks);
@@ -25,12 +27,14 @@ const BookTable = () => {
         <tbody>
           {books.length > 0 ? (
             books.map((book, index) => (
-              <tr key={index} className="hover:bg-gray-100 border-b border-black">
+              <tr key={index} 
+              className="hover:bg-gray-100 border-b border-black"
+              onClick={() => navigate(`/book/${book.isbn}`)}>
                 <td className="p-3 border-r border-black">{book.isbn}</td>
                 <td className="p-3 border-r border-black">{book.title}</td>
                 <td className="p-3 border-r border-black">{book.description}</td>
                 <td className="p-3 border-r border-black">{book.publicationDate}</td>
-                <td className="p-3 border-r border-black">{book.uploadedDate}</td>
+                <td className="p-3 border-r border-black">{book.updatedDate}</td>
                 <td className="p-3">{book.validationStatus}</td>
               </tr>
             ))

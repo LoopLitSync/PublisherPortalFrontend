@@ -5,25 +5,26 @@ import PublisherDashboard from './pages/PublisherDashboard';
 import PublisherProfile from './pages/PublisherProfile';
 import Navbar from './components/Navbar';
 import BookDetails from './pages/BookDetails';
-
 import PrivateRoute from './PrivateRoute';
-
+import { AuthProvider } from './AuthContext';
 
 function App() {
     return (
-        <Router>
-            <Navbar />
-            <Routes>
-                <Route element={<PrivateRoute />}>
-                    <Route path="/" element={<PublisherDashboard />} />
-                    <Route path="/book-submission" element={<BookSubmission />} />
-                    <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
-                    <Route path="/publisher-profile" element={<PublisherProfile />} />
-                    <Route path="/publisher-profile/:id" element={<PublisherProfile />} />
-                    <Route path="/book/:isbn" element={<BookDetails />} />
-                </Route>
-            </Routes>
-        </Router>
+        <AuthProvider> 
+            <Router>
+                <Navbar />
+                <Routes>
+                    <Route element={<PrivateRoute />}>
+                        <Route path="/" element={<PublisherDashboard />} />
+                        <Route path="/book-submission" element={<BookSubmission />} />
+                        <Route path="/publisher-dashboard" element={<PublisherDashboard />} />
+                        <Route path="/publisher-profile" element={<PublisherProfile />} />
+                        <Route path="/publisher-profile/:id" element={<PublisherProfile />} />
+                        <Route path="/book/:isbn" element={<BookDetails />} />
+                    </Route>
+                </Routes>
+            </Router>
+        </AuthProvider>
     );
 }
 

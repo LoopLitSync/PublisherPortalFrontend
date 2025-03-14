@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
-import { fetchBooks } from "../api/BookService";
+import { fetchPublisherBooks } from "../api/BookService";
 import { Book } from "../models/Book";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../utils/date.ts";
+import { useAuth } from "../AuthContext.tsx";
 
 const BookTable = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const navigate = useNavigate();
-
+  const { publisher } = useAuth();
+  
   useEffect(() => {
-    fetchBooks().then(setBooks);
-  }, []); 
+    if (publisher && publisher.id !== undefined) {
+      fetchPublisherBooks(publisher.id).then(setBooks);
+    }
+  }, [publisher]);
+
+  if(!publisher) {
+    return <p className="text-center mt-10">Loading publisher dashboard...</p>;
+  }
 
   return (
     <div className="p-6">

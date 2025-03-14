@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Button from '../components/Button';
-import { Publisher } from '../models/Publisher';
+import { useAuth } from '../AuthContext';
 
 const PublisherProfile: React.FC = () => {
-    const [publisher, setPublisher] = useState<Publisher | null>(null); 
-
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => {
@@ -12,12 +10,7 @@ const PublisherProfile: React.FC = () => {
         }
     });
 
-    useEffect(() => {
-        const currentPublisher = localStorage.getItem("loggedInPublisher");
-        if (currentPublisher) {
-            setPublisher(JSON.parse(currentPublisher));
-        }
-    }, []);
+    const { publisher } = useAuth();
 
     if (!publisher) {
         return <p className="text-center mt-10">Loading publisher details...</p>;

@@ -7,13 +7,16 @@ import { fetchBookById, updateBook } from "../api/BookService";
 import EditBookModal from "../components/EditBookModal.tsx";
 import { Author } from "../models/Author.ts";
 import { formatDate } from "../utils/date.ts";
-import { fetchBookVersionsByBookId } from "../api/BookVersionService.ts";
+import { fetchBookVersionsByBookId, rollbackBookVersion } from "../api/BookVersionService.ts";
+import { BookVersion } from "../models/BookVersion.ts";
+import React from "react";
 
 function BookDetails() {
     const { id } = useParams();
     const [book, setBook] = useState<Book | null>(null);
-    const [bookVersions, setBookVersions] = useState<Book[]>([]);
+    const [bookVersions, setBookVersions] = useState<BookVersion[]>([]);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     useEffect(() => {
         if (id) {
@@ -26,6 +29,10 @@ function BookDetails() {
             fetchBookVersionsByBookId(book.id).then(setBookVersions);
         }
     }, [book]);
+
+    const toggleRow = (index: number) => {
+        setExpandedRow(expandedRow === index ? null : index);
+      };
 
     async function handleSave(formData: { id: number, title: string; authors: Author[]; description: string; language: string; publicationDate: string; genres: string[]; }) {
         const updatedBook: Book = {
@@ -45,6 +52,17 @@ function BookDetails() {
             console.error("Error updating book:", error);
         }
     }
+
+    async function onRollback(id: number, version: number) {
+        try {
+            await rollbackBookVersion(id, version);
+            window.location.reload();
+        }
+        catch (error) {
+            console.error("Error rolling back book version:", error);
+        }
+    }
+    
 
     if (!book) {
         return <p className="text-center mt-10">Loading book details...</p>;
@@ -115,41 +133,80 @@ function BookDetails() {
             <div className="flex flex-col gap-5 m-10">
                 <h2 className="text-3xl text-black">History</h2>
                 <table className="w-full border border-black bg-white shadow-lg">
-                    <thead>
-                        <tr className="bg-[#8075FF] text-white text-left border-b border-black">
-                            <th className="p-3 border-r border-black">ISBN</th>
-                            <th className="p-3 border-r border-black">Title</th>
-                            <th className="p-3 border-r border-black">Description</th>
-                            <th className="p-3 border-r border-black">Published</th>
-                            <th className="p-3 border-r border-black">Language</th>
-                            <th className="p-3 border-r border-black">Cover</th>
-                            <th className="p-3 border-r border-black">Updated</th>
-                            <th className="p-3 border-r border-black">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {bookVersions.length > 0 ? (
-                            bookVersions.map((book, index) => (
-                                <tr key={index} className="hover:bg-gray-100 border-b border-black">
-                                    <td className="p-3 border-r border-black">{book.isbn}</td>
-                                    <td className="p-3 border-r border-black">{book.title}</td>
-                                    <td className="p-3 border-r border-black">{book.description}</td>
-                                    <td className="p-3 border-r border-black">{formatDate(book.publicationDate)}</td>
-                                    <td className="p-3 border-r border-black">{book.language}</td>
-                                    <td className="p-3 border-r border-black">{book.coverImg ? "Yes" : "No"}</td>
-                                    <td className="p-3 border-r border-black">{formatDate(book.updatedDate)}</td>
-                                    <td className="p-3 border-r border-black">{book.validationStatus}</td>
-                                </tr>
-                            ))
+      <thead>
+        <tr className="bg-[#8075FF] text-white text-left border-b border-black">
+          <th className="p-3 border-r border-black">ISBN</th>
+          <th className="p-3 border-r border-black">Title</th>
+          <th className="p-3 border-r border-black">Version</th>
+          <th className="p-3 border-r border-black">Updated</th>
+          <th className="p-3 border-r border-black">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {bookVersions.length > 0 ? (
+          bookVersions.slice().reverse().map((book, index) => (
+            <React.Fragment key={index}>
+              {/* Main Row */}
+              <tr
+                className="hover:bg-gray-100 border-b border-black cursor-pointer"
+                onClick={() => toggleRow(index)}
+              >
+                <td className="p-3 border-r border-black">{book.isbn}</td>
+                <td className="p-3 border-r border-black">{book.title}</td>
+                <td className="p-3 border-r border-black">{book.id.version}</td>
+                <td className="p-3 border-r border-black">{formatDate(book.updatedDate)}</td>
+                <td className="p-3 border-r border-black">{book.validationStatus}</td>
+              </tr>
+
+              {/* Expanded Row */}
+              {expandedRow === index && (
+                <tr className="bg-gray-50 border-b border-black">
+                  <td colSpan={5} className="p-4">
+                    <div className="flex gap-4 relative">
+                      {/* Cover Image */}
+                      {book.coverImage ? (
+                        <img src={book.coverImage} alt={book.title} className="w-24 h-32 object-cover border" />
+                      ) : (
+                        <div className="w-24 h-32 flex items-center justify-center bg-gray-200 border">
+                          No Image
+                        </div>
+                      )}
+
+                      {/* Additional Details */}
+                      <div className="flex flex-col gap-2">
+                        <p><strong>Description:</strong> {book.description}</p>
+                        <p><strong>Language:</strong> {book.language}</p>
+                        <p><strong>Publication Date:</strong> {book.publicationDate}</p>
+                        <p><strong>Genres:</strong> {book.genres.map(g => g.type).join(", ")}</p>
+                        <p><strong>Authors:</strong></p>
+                        <ul className="list-disc ml-6">
+                          {book.authors.map(author => (
+                            <li key="">{author.firstName} {author.lastName} ({author.year})</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="absolute bottom-0 right-0">
+                        {!book.activeVersion ? (
+                            <Button text="Rollback" onClick={() => onRollback(book.id.bookId, book.id.version)}></Button>
                         ) : (
-                            <tr>
-                                <td colSpan={9} className="text-center p-4 border-t border-gray-300">
-                                    No book versions available
-                                </td>
-                            </tr>
+                            <p>Current version</p>
                         )}
-                    </tbody>
-                </table>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={5} className="text-center p-4 border-t border-gray-300">
+              No book versions available
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
             </div>
         </>
     )

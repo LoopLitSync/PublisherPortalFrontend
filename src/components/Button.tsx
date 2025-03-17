@@ -1,15 +1,20 @@
+import React, { ReactNode } from 'react';
+
 interface ButtonProps {
-  text: string;
-  onClick?: () => void;
+
+  onClick: () => void;
+
+  children: ReactNode;
+
 }
 
-const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
+const Button: React.FC<ButtonProps> = ({onClick, children}) => {
   return (
     <button 
     className="bg-[#8075FF] text-white px-4 py-2 rounded-lg self-start"
     onClick={onClick}
     >
-      {text}
+      {children}
     </button>
   )
 }

@@ -120,7 +120,7 @@ function BookDetails() {
                             <p>{book.validationStatus}</p>
                         )}
                     </div>
-                    <Button onClick={() => setIsEditModalOpen(true)} text="Edit"></Button>
+                    <Button onClick={() => setIsEditModalOpen(true)}> Edit </Button>
                 </div>
 
                 <EditBookModal
@@ -187,7 +187,7 @@ function BookDetails() {
                       </div>
                       <div className="absolute bottom-0 right-0">
                         {!book.activeVersion ? (
-                            <Button text="Rollback" onClick={() => onRollback(book.id.bookId, book.id.version)}></Button>
+                            <Button onClick={() => onRollback(book.id.bookId, book.id.version)}>Rollback</Button>
                         ) : (
                             <p>Current version</p>
                         )}

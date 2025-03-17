@@ -9,6 +9,7 @@ import { Author } from "../models/Author.ts";
 import { formatDate } from "../utils/date.ts";
 import { fetchBookVersionsByBookId, rollbackBookVersion } from "../api/BookVersionService.ts";
 import { BookVersion } from "../models/BookVersion.ts";
+import { Book as BookIcon } from "lucide-react";
 import React from "react";
 
 function BookDetails() {
@@ -72,22 +73,24 @@ function BookDetails() {
 
   return (
     <>
-      <div className="flex gap-30 m-10">
+      <div className="grid grid-cols-1 md:grid-cols-[30%_70%] gap-10 m-10 items-start">
         <div>
           {book.coverImg ? (
-            <img className="rounded-lg w-40 h-60 object-cover" src={book.coverImg} alt={book.title} />
+            <img className="rounded-lg w-56 h-80 object-cover" src={book.coverImg} alt={book.title} />
           ) : (
-            <div className="w-40 h-60 flex items-center justify-center bg-white text-gray-600 border border-gray-400 rounded-lg">
-              No cover available
+            <div className="w-56 h-80 flex items-center justify-center rounded-lg border border-gray-400 bg-gradient-to-br from-white to-[#8075FF] text-gray-700">
+              <BookIcon className="size-12 text-[#8075FF]" />
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 max-w-[600px] w-full">
           <h1 className="text-5xl text-black">{book.title}</h1>
           <p>{book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", ")}</p>
           <p>{book.isbn}</p>
           <p>{book.description}</p>
-          <hr></hr>
+
+          <div className="border-t border-gray-800 w-full"></div>
+
           <div className='flex flex-row gap-2'>
             <p>Language:</p>
             <p>{book.language}</p>
@@ -102,7 +105,9 @@ function BookDetails() {
               <p key={index}>{genre}</p>
             ))}
           </div>
-          <hr></hr>
+
+          <div className="border-t border-gray-800 w-full"></div>
+
           <div className="flex flex-row gap-2">
             <p>Submitted:</p>
             <p>{formatDate(book.submissionDate)}</p>
@@ -162,10 +167,9 @@ function BookDetails() {
                         className={`transition-transform duration-300 inline-block ${expandedRow === index ? "rotate-180" : ""
                           }`}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-7">
                           <path fillRule="evenodd" d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z" clipRule="evenodd" />
                         </svg>
-
                       </span>
                     </td>
 

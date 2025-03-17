@@ -17,7 +17,7 @@ export const fetchPublisherBooks = async (publisherId: number): Promise<Book[]> 
   try {
     const response = await fetch(API_URL + `/publisher/${publisherId}`);
     if (!response.ok) throw new Error("Failed to fetch books");
-    return await response.json();
+    return await response.json(); 
   } catch (error) {
     console.error("Error fetching books:", error);
     return [];
@@ -25,23 +25,32 @@ export const fetchPublisherBooks = async (publisherId: number): Promise<Book[]> 
 }
 
 
-export const submitBook = async (bookData: Partial<Book>): Promise<Book | null> => {
-  console.log(bookData)
+export const submitBook = async (bookData: Partial<Book>, coverFile: File) => {
+  const formData = new FormData();
+  formData.append('bookCreateDTO', new Blob([JSON.stringify(bookData)], { type: "application/json" }));
+
+  const imageBlob = new Blob([coverFile], { type: coverFile.type || "image/jpeg" });
+  formData.append('file', imageBlob, coverFile.name);
+
   try {
     const response = await fetch(API_URL, {
-      method: "POST",
+      method: 'POST',
+      body: formData, 
       headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(bookData),
+        "Accept": "application/json", 
+      }
     });
 
-    if (!response.ok) throw new Error("Failed to submit book");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error submitting book:', response.status, errorText);
+      throw new Error(errorText);
+    }
+
     return await response.json();
   } catch (error) {
-    console.error("Error submitting book:", error);
-    return null;
+    console.error('Error submitting book:', error);
+    throw new Error('Failed to submit book');
   }
 };
 

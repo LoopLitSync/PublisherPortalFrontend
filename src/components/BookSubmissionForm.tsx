@@ -22,6 +22,7 @@ const BookSubmissionForm = () => {
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
 
   useEffect(() => {
     const loadGenresAndLanguages = async () => {
@@ -50,8 +51,15 @@ const BookSubmissionForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isbnError) return; 
+    if (isbnError) return;
+  
+    if (!coverFile) {
+      setMessage("Please select a cover image.");
+      return;
+    }
 
+    console.log(coverFile.size)
+  
     const bookData: Partial<Book> = {
       isbn,
       title,
@@ -63,12 +71,12 @@ const BookSubmissionForm = () => {
         year: author.year || null,
       })),
       genres: selectedGenres,
-      coverImg: coverImage,
+      coverImg: coverImage, 
       language,
     };
-
+  
     try {
-      const result = await submitBook(bookData);
+      const result = await submitBook(bookData, coverFile);
       if (result) {
         setMessage("Book submitted successfully!");
         setTitle("");
@@ -78,6 +86,7 @@ const BookSubmissionForm = () => {
         setSelectedGenres([]);
         setPublicationDate("");
         setCoverImage(null);
+        setCoverFile(null); 
         setDescription("");
       } else {
         setMessage("Failed to submit the book. Please try again.");
@@ -232,24 +241,25 @@ const BookSubmissionForm = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Cover Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setCoverImage(URL.createObjectURL(file));
-                }
-              }}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-            {coverImage && (
-              <div className="mt-2">
-                <img src={coverImage} alt="Cover preview" className="w-32 h-32 object-cover rounded-md" />
-              </div>
-            )}
-          </div>
+  <label className="block text-sm font-medium text-gray-700">Cover Image</label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setCoverImage(URL.createObjectURL(file));
+        setCoverFile(file);
+      }
+    }}
+    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+  />
+  {coverImage && (
+    <div className="mt-2">
+      <img src={coverImage} alt="Cover preview" className="w-32 h-32 object-cover rounded-md" />
+    </div>
+  )}
+</div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Description</label>

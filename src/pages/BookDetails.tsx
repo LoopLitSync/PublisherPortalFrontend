@@ -135,7 +135,9 @@ function BookDetails() {
               <p>{book.validationStatus}</p>
             )}
           </div>
-          <Button onClick={() => setIsEditModalOpen(true)} text="Edit"></Button>
+          <div className="flex justify-end">
+            <Button onClick={() => setIsEditModalOpen(true)} text="Edit"></Button>
+          </div>
         </Card>
 
         <EditBookModal

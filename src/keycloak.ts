@@ -1,8 +1,8 @@
 import Keycloak from "keycloak-js";
 
 const keycloak = new Keycloak({
-    url: "http://localhost:8080",
-    realm: "master",
+    url: "https://lemur-17.cloud-iam.com/auth",
+    realm: "litsync-keycloak",
     clientId: "PublisherPortal",
 });
 

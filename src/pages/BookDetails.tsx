@@ -12,6 +12,7 @@ import { BookVersion } from "../models/BookVersion.ts";
 import { Book as BookIcon } from "lucide-react";
 import React from "react";
 import Card from "../components/Card.tsx";
+import TextTruncate from "../components/TextTruncate.tsx";
 
 function BookDetails() {
   const { id } = useParams();
@@ -94,8 +95,9 @@ function BookDetails() {
             <p className="font-bold">ISBN:</p>
             <p>{book.isbn}</p>
           </div>
+
           <p className="font-bold">Description:</p>
-          <p>{book.description}</p>
+          <TextTruncate text={book.description} maxLength={500} />
 
           <div className="border-t border-gray-800 w-full"></div>
 

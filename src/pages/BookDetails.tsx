@@ -189,13 +189,13 @@ function BookDetails() {
                   {expandedRow === index && (
                     <tr className="bg-gray-50 border-b border-black">
                       <td colSpan={5} className="p-4">
-                        <div className="flex gap-4 relative">
+                        <div className="grid grid-cols-1 md:grid-cols-[20%_80%] gap-4 relative">
                           {/* Cover Image */}
                           {book.coverImage ? (
-                            <img src={book.coverImage} alt={book.title} className="w-24 h-32 object-cover border" />
+                            <img className="rounded-lg w-56 h-80 object-cover" src={book.coverImage} alt={book.title} />
                           ) : (
-                            <div className="w-24 h-32 flex items-center justify-center bg-gray-200 border">
-                              No Image
+                            <div className="w-56 h-80 flex items-center justify-center rounded-lg border border-gray-400 bg-gradient-to-br from-white to-[#8075FF] text-gray-700">
+                              <BookIcon className="size-12 text-[#8075FF]" />
                             </div>
                           )}
 

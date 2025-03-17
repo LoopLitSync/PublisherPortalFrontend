@@ -11,6 +11,7 @@ import { fetchBookVersionsByBookId, rollbackBookVersion } from "../api/BookVersi
 import { BookVersion } from "../models/BookVersion.ts";
 import { Book as BookIcon } from "lucide-react";
 import React from "react";
+import Card from "../components/Card.tsx";
 
 function BookDetails() {
   const { id } = useParams();
@@ -73,7 +74,7 @@ function BookDetails() {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-[30%_70%] gap-10 m-10 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[20%_80%] gap-10 m-10 items-start">
         <div>
           {book.coverImg ? (
             <img className="rounded-lg w-56 h-80 object-cover" src={book.coverImg} alt={book.title} />
@@ -83,24 +84,31 @@ function BookDetails() {
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-5 max-w-[600px] w-full">
+        <Card className="flex flex-col gap-3 max-w-[1000px] w-full">
           <h1 className="text-5xl text-black">{book.title}</h1>
-          <p>{book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", ")}</p>
-          <p>{book.isbn}</p>
+          <div className="flex flex-row gap-2">
+            <p className="font-bold">Authors:</p>
+            <p>{book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", ")}</p>
+          </div>
+          <div className="flex flex-row gap-2">
+            <p className="font-bold">ISBN:</p>
+            <p>{book.isbn}</p>
+          </div>
+          <p className="font-bold">Description:</p>
           <p>{book.description}</p>
 
           <div className="border-t border-gray-800 w-full"></div>
 
           <div className='flex flex-row gap-2'>
-            <p>Language:</p>
+            <p className="font-bold">Language:</p>
             <p>{book.language}</p>
           </div>
           <div className='flex flex-row gap-2'>
-            <p>Publication date:</p>
+            <p className="font-bold">Publication date:</p>
             <p>{book.publicationDate}</p>
           </div>
           <div className='flex flex-row gap-2'>
-            <p>Genres:</p>
+            <p className="font-bold">Genres:</p>
             {book.genres.map((genre, index) => (
               <p key={index}>{genre}</p>
             ))}
@@ -109,15 +117,15 @@ function BookDetails() {
           <div className="border-t border-gray-800 w-full"></div>
 
           <div className="flex flex-row gap-2">
-            <p>Submitted:</p>
+            <p className="font-bold">Submitted:</p>
             <p>{formatDate(book.submissionDate)}</p>
           </div>
           <div className='flex flex-row gap-2'>
-            <p>Last updated:</p>
+            <p className="font-bold">Last updated:</p>
             <p>{formatDate(book.updatedDate)}</p>
           </div>
           <div className='flex flex-row gap-2'>
-            <p>Validation status:</p>
+            <p className="font-bold">Validation status:</p>
             <StatusComponent />
             {book.validationStatus === "NEEDS_REVISION" ? (
               <p>NEEDS REVISION</p>
@@ -126,7 +134,7 @@ function BookDetails() {
             )}
           </div>
           <Button onClick={() => setIsEditModalOpen(true)} text="Edit"></Button>
-        </div>
+        </Card>
 
         <EditBookModal
           book={book}

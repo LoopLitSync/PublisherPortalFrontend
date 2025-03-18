@@ -3,9 +3,8 @@ import statusComponents from "../components/validationStatus/StatusComponents.ts
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Book } from "../models/Book";
-import { fetchBookById, updateBook } from "../api/BookService";
+import { fetchBookById } from "../api/BookService";
 import EditBookModal from "../components/EditBookModal.tsx";
-import { Author } from "../models/Author.ts";
 import { formatDate } from "../utils/date.ts";
 import { fetchBookVersionsByBookId, rollbackBookVersion } from "../api/BookVersionService.ts";
 import { BookVersion } from "../models/BookVersion.ts";
@@ -37,17 +36,8 @@ function BookDetails() {
     setExpandedRow(expandedRow === index ? null : index);
   };
 
-  async function handleSave(formData: { id: number, title: string; authors: Author[]; description: string; language: string; publicationDate: string; genres: string[]; }) {
-    const updatedBook: Book = {
-      ...book,
-      ...formData,
-      isbn: book?.isbn || "",
-      validationStatus: book?.validationStatus || "PENDING",
-      submissionDate: book?.submissionDate || "",
-      updatedDate: book?.updatedDate || "",
-    };
+  async function handleSave() {
     try {
-      await updateBook(updatedBook.id, updatedBook);
       setBook(null);
       const book = await fetchBookById(Number(id));
       setBook(book);

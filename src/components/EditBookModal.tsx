@@ -9,9 +9,19 @@ interface EditBookModalProps {
     book: Book;
     isOpen: boolean;
     onClose: () => void;
+    onSave: (formData: {
+        id: number;
+        title: string;
+        authors: Author[];
+        description: string;
+        language: string;
+        publicationDate: string;
+        genres: string[];
+        coverImg?: string;
+    }) => Promise<void>;
 }
 
-function EditBookModal({ book, isOpen, onClose }: EditBookModalProps) {
+function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const [formData, setFormData] = useState<{
         id: number;
         isbn: string;
@@ -139,13 +149,14 @@ function EditBookModal({ book, isOpen, onClose }: EditBookModalProps) {
         if (isValid) {
             try {
                 await updateBook(formData.id, formData, coverFile);
+                onSave(formData);
                 onClose(); 
             } catch (error) {
                 console.error("Error updating book:", error);
             }
         }
         setErrors(errors);
-    };
+    }; 
 
     if (!isOpen) return null;
 

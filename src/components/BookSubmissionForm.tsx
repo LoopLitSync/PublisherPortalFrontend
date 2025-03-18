@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fetchGenres, fetchLanguages, submitBook } from "../api/BookService";
 import { Book } from "../models/Book";
 import { Author } from "../models/Author";
+import GenreSelector from "./GenreSelector";
 
 const isValidIsbn = (isbn: string): boolean => {
   const isbn10Regex = /^(?:\d{9}X|\d{10})$/;
@@ -39,27 +40,32 @@ const BookSubmissionForm = () => {
   }, []);
 
   const handleIsbnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9Xx]/g, ""); 
+    const value = e.target.value.replace(/[^0-9Xx]/g, "");
     setIsbn(value);
     setIsbnError(isValidIsbn(value) ? null : "Invalid ISBN (must be ISBN-10 or ISBN-13)");
   };
 
-  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-    setSelectedGenres(selectedOptions);
+  const handleGenreSelect = (genre: string) => {
+    if (!selectedGenres.includes(genre)) {
+      setSelectedGenres([...selectedGenres, genre]);
+    }
+  };
+
+  const handleGenreRemove = (genre: string) => {
+    setSelectedGenres(selectedGenres.filter((g) => g !== genre));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isbnError) return;
-  
+
     if (!coverFile) {
       setMessage("Please select a cover image.");
       return;
     }
 
     console.log(coverFile.size)
-  
+
     const bookData: Partial<Book> = {
       isbn,
       title,
@@ -71,10 +77,10 @@ const BookSubmissionForm = () => {
         year: author.year || null,
       })),
       genres: selectedGenres,
-      coverImg: coverImage, 
+      coverImg: coverImage,
       language,
     };
-  
+
     try {
       const result = await submitBook(bookData, coverFile);
       if (result) {
@@ -86,7 +92,7 @@ const BookSubmissionForm = () => {
         setSelectedGenres([]);
         setPublicationDate("");
         setCoverImage(null);
-        setCoverFile(null); 
+        setCoverFile(null);
         setDescription("");
       } else {
         setMessage("Failed to submit the book. Please try again.");
@@ -120,78 +126,77 @@ const BookSubmissionForm = () => {
               value={isbn}
               onChange={handleIsbnChange}
               required
-              className={`mt-1 block w-full px-3 py-2 border ${
-                isbnError ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+              className={`mt-1 block w-full px-3 py-2 border ${isbnError ? "border-red-500" : "border-gray-300"
+                } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
             />
             {isbnError && <p className="text-red-500 text-sm mt-1">{isbnError}</p>}
           </div>
 
           <div>
-          <label className="block text-sm font-medium text-gray-700">Authors</label>
-          {authors.map((author, index) => (
-            <div key={index} className="flex space-x-4 mb-2">
-              <input
-                type="text"
-                value={author.firstName}
-                onChange={(e) =>
-                  setAuthors((prev) =>
-                    prev.map((a, i) =>
-                      i === index ? { ...a, firstName: e.target.value } : a
+            <label className="block text-sm font-medium text-gray-700">Authors</label>
+            {authors.map((author, index) => (
+              <div key={index} className="flex space-x-4 mb-2">
+                <input
+                  type="text"
+                  value={author.firstName}
+                  onChange={(e) =>
+                    setAuthors((prev) =>
+                      prev.map((a, i) =>
+                        i === index ? { ...a, firstName: e.target.value } : a
+                      )
                     )
-                  )
-                }
-                placeholder="First Name"
-                required
-                className="mt-1 block w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-              <input
-                type="text"
-                value={author.lastName}
-                onChange={(e) =>
-                  setAuthors((prev) =>
-                    prev.map((a, i) =>
-                      i === index ? { ...a, lastName: e.target.value } : a
+                  }
+                  placeholder="First Name"
+                  required
+                  className="mt-1 block w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+                <input
+                  type="text"
+                  value={author.lastName}
+                  onChange={(e) =>
+                    setAuthors((prev) =>
+                      prev.map((a, i) =>
+                        i === index ? { ...a, lastName: e.target.value } : a
+                      )
                     )
-                  )
-                }
-                placeholder="Last Name"
-                required
-                className="mt-1 block w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-              <input
-                type="number"
-                value={author.year || ""}
-                onChange={(e) =>
-                  setAuthors((prev) =>
-                    prev.map((a, i) =>
-                      i === index ? { ...a, year: Number(e.target.value) } : a
+                  }
+                  placeholder="Last Name"
+                  required
+                  className="mt-1 block w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+                <input
+                  type="number"
+                  value={author.year || ""}
+                  onChange={(e) =>
+                    setAuthors((prev) =>
+                      prev.map((a, i) =>
+                        i === index ? { ...a, year: Number(e.target.value) } : a
+                      )
                     )
-                  )
-                }
-                
-                placeholder="Year"
-                className="mt-1 block w-1/4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  setAuthors((prev) => prev.filter((_, i) => i !== index))
-                }
-                className="text-red-500 hover:text-red-700"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => setAuthors((prev) => [...prev, { firstName: "", lastName: "", year: null }])}
-            className="text-indigo-600 hover:text-indigo-800"
-          >
-            Add Author
-          </button>
-        </div>
+                  }
+
+                  placeholder="Year"
+                  className="mt-1 block w-1/4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setAuthors((prev) => prev.filter((_, i) => i !== index))
+                  }
+                  className="text-red-500 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setAuthors((prev) => [...prev, { firstName: "", lastName: "", year: null }])}
+              className="text-indigo-600 hover:text-indigo-800"
+            >
+              Add Author
+            </button>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Language</label>
@@ -210,22 +215,13 @@ const BookSubmissionForm = () => {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Genres</label>
-            <select
-              multiple
-              value={selectedGenres}
-              onChange={handleGenreChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              {genres.map((g) => (
-                <option key={g} value={g}>
-                  {g}
-                </option>
-              ))}
-            </select>
-          </div>
+          <GenreSelector
+            availableGenres={genres}
+            selectedGenres={selectedGenres}
+            onGenreSelect={handleGenreSelect}
+            onGenreRemove={handleGenreRemove}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+          </GenreSelector>
         </div>
 
         <div className="space-y-4">
@@ -241,25 +237,25 @@ const BookSubmissionForm = () => {
           </div>
 
           <div>
-  <label className="block text-sm font-medium text-gray-700">Cover Image</label>
-  <input
-    type="file"
-    accept="image/*"
-    onChange={(e) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        setCoverImage(URL.createObjectURL(file));
-        setCoverFile(file);
-      }
-    }}
-    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-  />
-  {coverImage && (
-    <div className="mt-2">
-      <img src={coverImage} alt="Cover preview" className="w-32 h-32 object-cover rounded-md" />
-    </div>
-  )}
-</div>
+            <label className="block text-sm font-medium text-gray-700">Cover Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setCoverImage(URL.createObjectURL(file));
+                  setCoverFile(file);
+                }
+              }}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            {coverImage && (
+              <div className="mt-2">
+                <img src={coverImage} alt="Cover preview" className="w-32 h-32 object-cover rounded-md" />
+              </div>
+            )}
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Description</label>
@@ -275,9 +271,8 @@ const BookSubmissionForm = () => {
             <button
               type="submit"
               disabled={!!isbnError}
-              className={`w-full py-2 px-4 rounded-md text-white ${
-                isbnError ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
-              } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50`}
+              className={`w-full py-2 px-4 rounded-md text-white ${isbnError ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
+                } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50`}
             >
               Submit Book
             </button>

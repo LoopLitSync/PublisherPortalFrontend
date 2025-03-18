@@ -4,14 +4,15 @@ interface GenreSelectorProps {
     onGenreSelect: (genre: string) => void;
     onGenreRemove: (genre: string) => void;
     error?: string;
+    className?: string;
 };
 
-const GenreSelector: React.FC<GenreSelectorProps> = ({ availableGenres, selectedGenres, onGenreSelect, onGenreRemove, error }) => {
+const GenreSelector: React.FC<GenreSelectorProps> = ({ availableGenres, selectedGenres, onGenreSelect, onGenreRemove, error, className }) => {
     return (
-      <div className="flex flex-col space-y-2">
+      <div className={`flex flex-col space-y-2`}>
         <label className="text-lg">Genres</label>
         <select
-          className="w-full p-2 border rounded"
+          className={`w-full p-2 border rounded ${className}`}
           onChange={(e) => onGenreSelect(e.target.value)}
           defaultValue=""
         >

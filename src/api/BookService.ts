@@ -24,13 +24,14 @@ export const fetchPublisherBooks = async (publisherId: number): Promise<Book[]> 
   }
 }
 
-
-export const submitBook = async (bookData: Partial<Book>, coverFile: File) => {
+export const submitBook = async (bookData: Partial<Book>, coverFile: File | null) => {
   const formData = new FormData();
   formData.append('bookCreateDTO', new Blob([JSON.stringify(bookData)], { type: "application/json" }));
 
-  const imageBlob = new Blob([coverFile], { type: coverFile.type || "image/jpeg" });
-  formData.append('file', imageBlob, coverFile.name);
+  if (coverFile) {
+    const imageBlob = new Blob([coverFile], { type: coverFile.type || "image/jpeg" });
+    formData.append('file', imageBlob, coverFile.name);
+  }
 
   try {
     const response = await fetch(API_URL, {
@@ -79,17 +80,32 @@ export const fetchGenres = async (): Promise<string[]> => {
   return response.json();
 };
 
-export const updateBook = async (id: number, book: Book): Promise<void> => {
+export const updateBook = async (id: number, bookData: Partial<Book>, coverFile?: File | null): Promise<void> => {
+  const formData = new FormData();
+  formData.append('bookUpdateDTO', new Blob([JSON.stringify(bookData)], { type: "application/json" }));
+
+  if (coverFile) {
+    const imageBlob = new Blob([coverFile], { type: coverFile.type || "image/jpeg" });
+    formData.append('file', imageBlob, coverFile.name);
+  }
+
   try {
     const response = await fetch(API_URL + `/${id}`, {
       method: "PUT",
+      body: formData,
       headers: {
-        "Content-Type": "application/json",
+        "Accept": "application/json",
       },
-      body: JSON.stringify(book),
     });
-    if (!response.ok) throw new Error("Failed to update book");
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error updating book:", response.status, errorText);
+      throw new Error(errorText);
+    }
   } catch (error) {
     console.error("Error updating book:", error);
+    throw new Error("Failed to update book");
   }
 };
+

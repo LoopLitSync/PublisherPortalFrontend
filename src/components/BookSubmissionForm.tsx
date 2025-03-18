@@ -59,13 +59,6 @@ const BookSubmissionForm = () => {
     e.preventDefault();
     if (isbnError) return;
 
-    if (!coverFile) {
-      setMessage("Please select a cover image.");
-      return;
-    }
-
-    console.log(coverFile.size)
-
     const bookData: Partial<Book> = {
       isbn,
       title,

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Book } from "../models/Book";
 import Button from "./Button";
 import { validateForm, Errors } from "../utils/validation";
-import { fetchLanguages, fetchGenres } from "../api/BookService";
+import { fetchLanguages, fetchGenres, updateBook } from "../api/BookService";
 import { Author } from "../models/Author";
 import GenreSelector from "./GenreSelector";
 
@@ -10,12 +10,22 @@ interface EditBookModalProps {
     book: Book;
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: { id: number, title: string; authors: Author[]; description: string; language: string; publicationDate: string; genres: string[]; }) => Promise<void>;
+    onSave: (formData: {
+        id: number;
+        title: string;
+        authors: Author[];
+        description: string;
+        language: string;
+        publicationDate: string;
+        genres: string[];
+        coverImg?: string;
+    }) => Promise<void>;
 }
 
 function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const [formData, setFormData] = useState<{
-        id: number,
+        id: number;
+        isbn: string;
         title: string;
         authors: Author[];
         description: string;
@@ -25,6 +35,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         coverImg: string;
     }>({
         id: book.id,
+        isbn: book.isbn,
         title: "",
         authors: [],
         description: "",
@@ -45,6 +56,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
     const [languages, setLanguages] = useState<string[]>([]);
     const [availableGenres, setAvailableGenres] = useState<string[]>([]);
+    const [coverFile, setCoverFile] = useState<File | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -64,6 +76,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         if (book) {
             setFormData({
                 id: book.id,
+                isbn: book.isbn,
                 title: book.title,
                 authors: book.authors || [],
                 description: book.description,
@@ -82,17 +95,17 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                setFormData((prev) => ({ ...prev, coverImg: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
-        }
+        setCoverFile(file);
+        const reader = new FileReader();
+        reader.onload = () => {
+            setFormData((prev) => ({ ...prev, coverImg: reader.result as string }));
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleRemoveImage = () => {
         setFormData((prev) => ({ ...prev, coverImg: "" }));
+        setCoverFile(null);
     };
 
     const handleGenreSelect = (genre: string) => {
@@ -135,11 +148,16 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         e.preventDefault();
         const { isValid, errors } = validateForm(formData);
         if (isValid) {
-            await onSave(formData);
-            onClose();
+            try {
+                await updateBook(formData.id, formData, coverFile);
+                onSave(formData);
+                onClose(); 
+            } catch (error) {
+                console.error("Error updating book:", error);
+            }
         }
         setErrors(errors);
-    };
+    }; 
 
     if (!isOpen) return null;
 

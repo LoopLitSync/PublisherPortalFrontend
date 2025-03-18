@@ -53,13 +53,6 @@ const BookSubmissionForm = () => {
     e.preventDefault();
     if (isbnError) return;
   
-    if (!coverFile) {
-      setMessage("Please select a cover image.");
-      return;
-    }
-
-    console.log(coverFile.size)
-  
     const bookData: Partial<Book> = {
       isbn,
       title,
@@ -71,7 +64,7 @@ const BookSubmissionForm = () => {
         year: author.year || null,
       })),
       genres: selectedGenres,
-      coverImg: coverImage, 
+      coverImg: coverImage,
       language,
     };
   
@@ -86,7 +79,7 @@ const BookSubmissionForm = () => {
         setSelectedGenres([]);
         setPublicationDate("");
         setCoverImage(null);
-        setCoverFile(null); 
+        setCoverFile(null);
         setDescription("");
       } else {
         setMessage("Failed to submit the book. Please try again.");

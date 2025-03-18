@@ -24,13 +24,14 @@ export const fetchPublisherBooks = async (publisherId: number): Promise<Book[]> 
   }
 }
 
-
-export const submitBook = async (bookData: Partial<Book>, coverFile: File) => {
+export const submitBook = async (bookData: Partial<Book>, coverFile: File | null) => {
   const formData = new FormData();
   formData.append('bookCreateDTO', new Blob([JSON.stringify(bookData)], { type: "application/json" }));
 
-  const imageBlob = new Blob([coverFile], { type: coverFile.type || "image/jpeg" });
-  formData.append('file', imageBlob, coverFile.name);
+  if (coverFile) {
+    const imageBlob = new Blob([coverFile], { type: coverFile.type || "image/jpeg" });
+    formData.append('file', imageBlob, coverFile.name);
+  }
 
   try {
     const response = await fetch(API_URL, {
@@ -81,7 +82,6 @@ export const fetchGenres = async (): Promise<string[]> => {
 
 export const updateBook = async (id: number, bookData: Partial<Book>, coverFile?: File | null): Promise<void> => {
   const formData = new FormData();
-  console.log(bookData.isbn)
   formData.append('bookUpdateDTO', new Blob([JSON.stringify(bookData)], { type: "application/json" }));
 
   if (coverFile) {

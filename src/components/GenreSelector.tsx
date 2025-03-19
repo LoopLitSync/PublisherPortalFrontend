@@ -19,7 +19,7 @@ const GenreSelector: React.FC<GenreSelectorProps> = ({ availableGenres, selected
           <option value="" disabled>Select Genre</option>
           {availableGenres.map((genre, index) => (
             <option key={index} value={genre}>
-              {genre}
+              {genre.replace(/_/g, ' ')}
             </option>
           ))}
         </select>
@@ -31,7 +31,7 @@ const GenreSelector: React.FC<GenreSelectorProps> = ({ availableGenres, selected
               key={index}
               className="bg-[#ebe9ff] text-[#8075FF] px-2 py-1 rounded-full flex items-center gap-1"
             >
-              {genre}
+              {genre.replace(/_/g, ' ')}
               <button
                 type="button"
                 className="text-[#8075FF] hover:text-[#3c3776]"

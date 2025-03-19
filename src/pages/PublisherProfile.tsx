@@ -9,40 +9,20 @@ import { fetchPublisherById } from "../api/PublisherService";
 
 const ProfilePage: React.FC = () => {
     const { publisher } = useAuth();
+    const keycloakId = keycloak.tokenParsed?.sub;
     const [newEmail, setNewEmail] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [isEmailModalOpen, setEmailModalOpen] = useState(false);
     const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [currentPublisher, setCurrentPublisher] = useState<Publisher | null>(null);
+    const API_URL = "http://localhost:8081/api/v1/publishers";
 
     useEffect(() => {
         if (publisher) {
             fetchPublisherById(Number(publisher.id)).then(setCurrentPublisher);
         }
     }, [publisher]);
-
-    const getAdminToken = async () => {
-        const response = await fetch("http://localhost:8080/realms/master/protocol/openid-connect/token", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-                grant_type: "password",
-                client_id: "PublisherPortal",
-                username: "admin",
-                password: "admin",
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to get admin token");
-        }
-        const data = await response.json();
-        return data.access_token;
-    };
-
-
-    // const API_URL = "http://localhost:8081/api/v1/publishers"; // Your backend API
 
     const handleEmailUpdate = async () => {
         if (!newEmail.trim()) return alert("Please enter a valid email!");
@@ -55,54 +35,43 @@ const ProfilePage: React.FC = () => {
             email: newEmail,
             picture: publisher?.picture || null,
         };
-        // console.log(updatedPublisher);
 
         try {
-            // Update email in Keycloak
-            const adminToken = await getAdminToken();
-            console.log(keycloak.tokenParsed?.sub);
-
-            const keycloakUpdateResponse = await fetch(`http://localhost:8080/admin/realms/master/users/${keycloak.tokenParsed?.sub}`, {
+            const keycloakResponse = await fetch(`${API_URL}/${keycloakId}/update_email?newEmail=${newEmail}`, {
                 method: "PUT",
                 headers: {
+                    'Authorization': `Bearer ${keycloak.token}`,
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${adminToken}`,
                 },
-                body: JSON.stringify({ email: newEmail }),
             });
-
-            if (!keycloakUpdateResponse.ok) throw new Error("Failed to update email in Keycloak");
-
-            // Update email in backend
+            if (!keycloakResponse.ok) {
+                // If Keycloak update fails, alert and exit
+                alert("Failed to update email in Keycloak. Please try again later.");
+                throw new Error(`Keycloak update failed: ${keycloakResponse.statusText}`);
+            }
+            // If Keycloak update succeeds, proceed to update email in the backend
             await updatePublisher(updatedPublisher?.id || 0, updatedPublisher);
-
-            setEmailModalOpen(false);
             alert("Email updated successfully!");
             window.location.reload();
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Error updating email:", error);
-            alert("Failed to update email.");
         };
-    }
+        setEmailModalOpen(false);
+    };
 
     const handlePasswordUpdate = async () => {
         if (!newPassword.trim()) return alert("Please enter a new password!");
 
         try {
-            const adminToken = await getAdminToken();
-            console.log(keycloak.tokenParsed?.sub);
-
-            const response = await fetch(`http://localhost:8080/admin/realms/master/users/${keycloak.tokenParsed?.sub}/reset-password`, {
+            // Update password to keycloak
+            await fetch(`${API_URL}/${keycloakId}/update_password?newPassword=${newPassword}`, {
                 method: "PUT",
                 headers: {
+                    'Authorization': `Bearer ${keycloak.token}`,
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${adminToken}`,
                 },
-                body: JSON.stringify({ type: "password", value: newPassword, temporary: false }),
+                body: JSON.stringify({ password: newPassword }),
             });
-
-            if (!response.ok) throw new Error("Failed to update password");
 
             alert("Password updated successfully!");
             setPasswordModalOpen(false);
@@ -111,6 +80,8 @@ const ProfilePage: React.FC = () => {
             alert("Failed to update password.");
         }
     };
+
+
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {

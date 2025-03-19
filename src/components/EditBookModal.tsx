@@ -2,19 +2,30 @@ import { useState, useEffect } from "react";
 import { Book } from "../models/Book";
 import Button from "./Button";
 import { validateForm, Errors } from "../utils/validation";
-import { fetchLanguages, fetchGenres } from "../api/BookService";
+import { fetchLanguages, fetchGenres, updateBook } from "../api/BookService";
 import { Author } from "../models/Author";
+import GenreSelector from "./GenreSelector";
 
 interface EditBookModalProps {
     book: Book;
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: { id: number, title: string; authors: Author[]; description: string; language: string; publicationDate: string; genres: string[]; }) => Promise<void>;
+    onSave: (formData: {
+        id: number;
+        title: string;
+        authors: Author[];
+        description: string;
+        language: string;
+        publicationDate: string;
+        genres: string[];
+        coverImg?: string;
+    }) => Promise<void>;
 }
 
 function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const [formData, setFormData] = useState<{
-        id: number,
+        id: number;
+        isbn: string;
         title: string;
         authors: Author[];
         description: string;
@@ -24,6 +35,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         coverImg: string;
     }>({
         id: book.id,
+        isbn: book.isbn,
         title: "",
         authors: [],
         description: "",
@@ -40,10 +52,12 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         language: "",
         publicationDate: "",
         genres: "",
+        isbn: ""
     });
 
     const [languages, setLanguages] = useState<string[]>([]);
     const [availableGenres, setAvailableGenres] = useState<string[]>([]);
+    const [coverFile, setCoverFile] = useState<File | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -58,11 +72,12 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         };
         fetchData();
     }, []);
-    
+
     useEffect(() => {
         if (book) {
             setFormData({
                 id: book.id,
+                isbn: book.isbn,
                 title: book.title,
                 authors: book.authors || [],
                 description: book.description,
@@ -81,17 +96,17 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                setFormData((prev) => ({ ...prev, coverImg: reader.result as string }));
-            };
-            reader.readAsDataURL(file);
-        }
+        setCoverFile(file);
+        const reader = new FileReader();
+        reader.onload = () => {
+            setFormData((prev) => ({ ...prev, coverImg: reader.result as string }));
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleRemoveImage = () => {
         setFormData((prev) => ({ ...prev, coverImg: "" }));
+        setCoverFile(null);
     };
 
     const handleGenreSelect = (genre: string) => {
@@ -134,11 +149,16 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         e.preventDefault();
         const { isValid, errors } = validateForm(formData);
         if (isValid) {
-            await onSave(formData);
-            onClose();
+            try {
+                await updateBook(formData.id, formData, coverFile);
+                onSave(formData);
+                onClose(); 
+            } catch (error) {
+                console.error("Error updating book:", error);
+            }
         }
         setErrors(errors);
-    };
+    }; 
 
     if (!isOpen) return null;
 
@@ -166,7 +186,16 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     <label className="text-lg">Title</label>
                     <input className="w-full p-2 border rounded" name="title" value={formData.title} onChange={handleChange} placeholder="Title" />
                     {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
-                    
+                    <label className="text-lg">ISBN</label>
+                    <input 
+                        className="w-full p-2 border rounded"
+                        name="isbn"
+                        value={formData.isbn}
+                        onChange={handleChange}
+                        placeholder="ISBN" 
+                    />
+                    {errors.isbn && <p className="text-red-500 text-sm">{errors.isbn}</p>}  
+
                     <div>
                         <label className="text-lg">Authors</label>
                         {formData.authors.map((author, index) => (
@@ -193,17 +222,17 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                                     className="w-1/2 p-2 border rounded">
                                 </input>
                                 <button
-                                type="button"
-                                onClick={() => removeAuthor(index)}
-                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                                    type="button"
+                                    onClick={() => removeAuthor(index)}
+                                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                                 >&times;
                                 </button>
                             </div>
                         ))}
                         <button
-                        type="button"
-                        onClick={addAuthor}
-                        className="bg-[#8075FF] text-white px-2 py-1 rounded hover:bg-[#7971d0]"
+                            type="button"
+                            onClick={addAuthor}
+                            className="bg-[#8075FF] text-white px-2 py-1 rounded hover:bg-[#7971d0]"
                         >+ Add Author
                         </button>
                     </div>
@@ -233,44 +262,17 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     <input className="w-full p-2 border rounded" type="date" name="publicationDate" value={formData.publicationDate} onChange={handleChange} />
                     {errors.publicationDate && <p className="text-red-500 text-sm">{errors.publicationDate}</p>}
 
-                    <div className="flex flex-col space-y-2">
-                        <label className="text-lg">Genres</label>
-                        <select
-                            className="w-full p-2 border rounded"
-                            onChange={(e) => handleGenreSelect(e.target.value)}
-                            defaultValue=""
-                        >
-                            <option value="" disabled>Select Genre</option>
-                            {availableGenres.map((genre, index) => (
-                                <option key={index} value={genre}>
-                                    {genre}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.genres && <p className="text-red-500 text-sm">{errors.genres}</p>}
-
-                        <div className="flex gap-2 flex-wrap">
-                            {formData.genres.map((genre, index) => (
-                                <span
-                                    key={index}
-                                    className="bg-[#ebe9ff] text-[#8075FF] px-2 py-1 rounded-full flex items-center gap-1"
-                                >
-                                    {genre}
-                                    <button
-                                        type="button"
-                                        className="text-[#8075FF] hover:text-[#3c3776]"
-                                        onClick={() => handleGenreRemove(genre)}
-                                    >
-                                        &times;
-                                    </button>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
+                    <GenreSelector
+                        availableGenres={availableGenres}
+                        selectedGenres={formData.genres}
+                        onGenreSelect={handleGenreSelect}
+                        onGenreRemove={handleGenreRemove}
+                        error={errors.genres}
+                    />
 
                     <div className="flex justify-end gap-2">
                         <button type="button" className="px-4 py-2 bg-gray-400 text-white rounded-lg" onClick={onClose}>Cancel</button>
-                        <Button text="Save" />
+                        <Button>Save</Button>
                     </div>
                 </form>
                 <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-lg">&times;</button>

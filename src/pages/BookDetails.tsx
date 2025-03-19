@@ -140,7 +140,7 @@ function BookDetails() {
             )}
           </div>
           <div className="flex justify-end">
-            <Button onClick={() => setIsEditModalOpen(true)} text="Edit"></Button>
+            <Button onClick={() => setIsEditModalOpen(true)} >Edit</Button>
           </div>
         </Card>
 
@@ -222,13 +222,13 @@ function BookDetails() {
                             </div>
                             <div className="absolute bottom-0 right-0">
                               {!book.activeVersion ? (
-                                <Button text="Rollback"
+                                <Button
                                   onClick={() => {
                                     const confirmRollback = window.confirm("Are you sure you want to rollback to this previous version?");
                                     if (confirmRollback) {
                                       onRollback(book.id.bookId, book.id.version);
                                     }
-                                  }}></Button>
+                                  }}>Rollback</Button>
                               ) : (
                                 <p>Current version</p>
                               )}

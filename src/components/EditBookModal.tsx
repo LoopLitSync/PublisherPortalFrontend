@@ -272,7 +272,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
                     <div className="flex justify-end gap-2">
                         <button type="button" className="px-4 py-2 bg-gray-400 text-white rounded-lg" onClick={onClose}>Cancel</button>
-                        <Button text="Save" />
+                        <Button>Save</Button>
                     </div>
                 </form>
                 <button onClick={onClose} className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-lg">&times;</button>

@@ -19,12 +19,23 @@ function BookDetails() {
   const [bookVersions, setBookVersions] = useState<BookVersion[]>([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
-      fetchBookById(Number(id)).then(setBook);
+      const fetchBook = async () => {
+        try {
+          const bookData = await fetchBookById(Number(id));
+          setBook(bookData);
+        } catch (err) {
+          setError((err as Error).message);
+        }
+      };
+  
+      fetchBook();
     }
   }, [id]);
+  
 
   useEffect(() => {
     if (book) {
@@ -56,6 +67,9 @@ function BookDetails() {
     }
   }
 
+  if (error) {
+    return <p className="text-center mt-10 text-red-500">{error}</p>;
+  }
 
   if (!book) {
     return <p className="text-center mt-10">Loading book details...</p>;

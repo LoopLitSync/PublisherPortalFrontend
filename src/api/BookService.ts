@@ -1,3 +1,4 @@
+import keycloak from "../keycloak";
 import { Book } from "../models/Book";
 
 const API_URL = "http://localhost:8081/api/v1/books";
@@ -34,11 +35,17 @@ export const submitBook = async (bookData: Partial<Book>, coverFile: File | null
   }
 
   try {
+    const token = keycloak.token;
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+
     const response = await fetch(API_URL, {
       method: 'POST',
       body: formData, 
       headers: {
         "Accept": "application/json", 
+        "Authorization": `Bearer ${token}`,
       }
     });
 
@@ -56,13 +63,32 @@ export const submitBook = async (bookData: Partial<Book>, coverFile: File | null
 };
 
 export const fetchBookById = async (id: number): Promise<Book> => {
-  const response = await fetch(API_URL + `/${id}`);
+  try {
+    const response = await fetch(API_URL + `/${id}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${keycloak.token}`,
+        "Accept": "application/json",
+      },
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch book details");
+    if (!response.ok) {
+      if (response.status === 403) {
+        throw new Error("You are not authorized to view this book.");
+      }
+      if (response.status === 404) {
+        throw new Error("Book not found.");
+      }
+      throw new Error(`Failed to fetch book details. Status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching book:", error);
+    throw error;
   }
-  return response.json();
 };
+
 
 export const fetchLanguages = async (): Promise<string[]> => {
   const response = await fetch(API_URL + "/languages");

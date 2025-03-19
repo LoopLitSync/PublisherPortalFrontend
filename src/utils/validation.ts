@@ -7,6 +7,7 @@ export interface FormData {
     language: string;
     publicationDate: string;
     genres: string[]; 
+    isbn: string;
 }
 
 export interface Errors {
@@ -16,6 +17,7 @@ export interface Errors {
     language: string;
     publicationDate: string;
     genres: string;
+    isbn: string;
 }
 
 export function validateForm(formData: FormData): { isValid: boolean; errors: Errors } {
@@ -26,6 +28,7 @@ export function validateForm(formData: FormData): { isValid: boolean; errors: Er
         language: "",
         publicationDate: "",
         genres: "",
+        isbn: ""
     };
 
     let isValid = true;
@@ -62,6 +65,11 @@ export function validateForm(formData: FormData): { isValid: boolean; errors: Er
 
     if (formData.genres.length === 0) {
         errors.genres = "At least one genre must be selected";
+        isValid = false;
+    }
+
+    if (!/^(?:\d{9}X|\d{10}|\d{13})$/.test(formData.isbn)) {
+        errors.isbn = "Invalid ISBN (must be ISBN-10 or ISBN-13)";
         isValid = false;
     }
 

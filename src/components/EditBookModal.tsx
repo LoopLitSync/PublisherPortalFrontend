@@ -52,6 +52,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         language: "",
         publicationDate: "",
         genres: "",
+        isbn: ""
     });
 
     const [languages, setLanguages] = useState<string[]>([]);
@@ -185,6 +186,15 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     <label className="text-lg">Title</label>
                     <input className="w-full p-2 border rounded" name="title" value={formData.title} onChange={handleChange} placeholder="Title" />
                     {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
+                    <label className="text-lg">ISBN</label>
+                    <input 
+                        className="w-full p-2 border rounded"
+                        name="isbn"
+                        value={formData.isbn}
+                        onChange={handleChange}
+                        placeholder="ISBN" 
+                    />
+                    {errors.isbn && <p className="text-red-500 text-sm">{errors.isbn}</p>}  
 
                     <div>
                         <label className="text-lg">Authors</label>

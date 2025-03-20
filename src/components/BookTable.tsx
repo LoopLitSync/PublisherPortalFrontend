@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
-import { fetchPublisherBooks } from "../api/BookService";
+import { fetchBooksByQuery, fetchPublisherBooks } from "../api/BookService";
 import { Book } from "../models/Book";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../utils/date.ts";
 import { useAuth } from "../AuthContext.tsx";
 
-const BookTable = () => {
+const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   const [books, setBooks] = useState<Book[]>([]);
   const navigate = useNavigate();
   const { publisher } = useAuth();
   
   useEffect(() => {
     if (publisher && publisher.id !== undefined) {
-      fetchPublisherBooks(publisher.id).then(setBooks);
+      if (searchQuery.trim() === "") {
+        fetchPublisherBooks(publisher.id).then(setBooks); 
+      } else {
+        fetchBooksByQuery(searchQuery).then(setBooks);
+      }
     }
-  }, [publisher]);
+  }, [searchQuery, publisher]);
 
   if(!publisher) {
     return <p className="text-center mt-10">Loading publisher dashboard...</p>;

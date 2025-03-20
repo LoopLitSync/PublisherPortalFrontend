@@ -11,9 +11,7 @@ const ProfilePage: React.FC = () => {
     const { publisher } = useAuth();
     const keycloakId = keycloak.tokenParsed?.sub;
     const [newEmail, setNewEmail] = useState("");
-    //const [newPassword, setNewPassword] = useState("");
     const [isEmailModalOpen, setEmailModalOpen] = useState(false);
-    //const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [currentPublisher, setCurrentPublisher] = useState<Publisher | null>(null);
     const API_URL = "http://localhost:8081/api/v1/publishers";
@@ -147,31 +145,6 @@ const ProfilePage: React.FC = () => {
                     </div>
                 </div>
             )}
-{/* 
-            Password Update Modal
-            {isPasswordModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/25">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h2 className="text-lg font-bold mb-4">Update Password</h2>
-                        <input
-                            type="password"
-                            className="border p-2 w-full rounded-md"
-                            placeholder="New password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                        />
-                        <div className="flex justify-end mt-4 gap-2">
-
-                            <Button onClick={handlePasswordUpdate}>
-                                Update
-                            </Button>
-                            <button className=" bg-gray-500 text-white px-4 py-2 rounded-lg" onClick={() => setPasswordModalOpen(false)}>
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}*/}
         </div> 
     );
 };

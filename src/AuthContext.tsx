@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                                 setPublisher(newPublisher);
                                 localStorage.setItem("loggedInPublisher", JSON.stringify(newPublisher));
                                 setIsAuthenticated(true);
+                                window.location.reload();
                             })
                             .catch(error => console.error("Error registering publisher:", error));
                     });

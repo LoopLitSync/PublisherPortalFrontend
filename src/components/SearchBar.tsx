@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { debounce } from "lodash";
 
 interface SearchBarProps {
     onSearch: (query: string) => void;
@@ -7,11 +8,15 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const [query, setQuery] = useState('');
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newQuery = event.target.value;
-        setQuery(newQuery);
-        onSearch(newQuery);
-    };
+    useEffect(() => {
+        const debouncedSearch = debounce(() => {
+          onSearch(query);
+        }, 500); 
+
+        debouncedSearch();
+
+        return () => debouncedSearch.cancel();
+    }, [query, onSearch]);
 
     return (
         <div className="flex justify-center m-5">
@@ -19,7 +24,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
                 type="text"
                 placeholder="Search books..."
                 value={query}
-                onChange={handleChange}
+                onChange={(e) => setQuery(e.target.value)}
                 className="w-full p-3 bg-white border-2 border-[#8075FF] rounded"
             />
         </div>

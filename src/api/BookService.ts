@@ -14,14 +14,24 @@ export const fetchBooks = async (): Promise<Book[]> => {
   }
 };
 
-export const fetchPublisherBooks = async (publisherId: number): Promise<Book[]> => {
+export const fetchPublisherBooks = async (
+  publisherId: number, 
+  page: number = 0, 
+  size: number = 10, 
+  validationStatus: string = "NEEDS_REVISION"
+): Promise<{ books: Book[], totalPages: number }> => {
   try {
-    const response = await fetch(API_URL + `/publisher/${publisherId}`);
+    const url = `${API_URL}/publisher/${publisherId}?validationStatus=${validationStatus}&page=${page}&size=${size}`;
+    const response = await fetch(url);
+
     if (!response.ok) throw new Error("Failed to fetch books");
-    return await response.json(); 
+
+    const data = await response.json(); 
+    
+    return { books: data.content, totalPages: data.totalPages }; 
   } catch (error) {
     console.error("Error fetching books:", error);
-    return [];
+    return { books: [], totalPages: 0 }; // Default response if error occurs
   }
 }
 

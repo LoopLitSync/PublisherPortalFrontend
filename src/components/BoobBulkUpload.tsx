@@ -1,6 +1,8 @@
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Book } from "../models/Book";
+import { submitBooks } from "../api/BookService";
+import Button from "./Button";
 
 const BookBulkUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -16,8 +18,8 @@ const BookBulkUpload = () => {
       if (!book.isbn) errors.push(`Row ${index + 1}: Missing ISBN`);
       if (!book.title) errors.push(`Row ${index + 1}: Missing Title`);
       if (!book.publicationDate) errors.push(`Row ${index + 1}: Missing Publication Date`);
-      if (book.isbn && !/^\d{3}-\d{10}$/.test(book.isbn)) {
-        errors.push(`Row ${index + 1}: Invalid ISBN format (Expected: 978-XXXXXXXXXX)`);
+      if (book.isbn && !/^\d{3}\d{10}$/.test(book.isbn)) {
+        errors.push(`Row ${index + 1}: Invalid ISBN format (Expected: 978XXXXXXXXXX)`);
       }
       if (isbnSet.has(book.isbn)) {
         errors.push(`Row ${index + 1}: Duplicate ISBN detected`);
@@ -28,6 +30,15 @@ const BookBulkUpload = () => {
 
     setValidationErrors(errors);
   };
+
+  const handleSubmit = async () => {
+    try {
+        const report = await submitBooks(selectedFile);
+        alert("Bulk upload complete: " + report);
+    } catch{
+        alert("Error uploading books");
+    }
+};
   
   // går gjennom fila kun json
   const processFile = (file: File) => {
@@ -66,7 +77,7 @@ const BookBulkUpload = () => {
           <h3 className="text-xl font-semibold mb-2">Preview</h3>
           <table className="w-full border-collapse border border-gray-300">
             <thead>
-              <tr className="bg-purple-500 text-white">
+              <tr className="bg-[#8075FF] text-white">
                 <th className="border border-gray-300 px-4 py-2">ISBN</th>
                 <th className="border border-gray-300 px-4 py-2">Title</th>
                 <th className="border border-gray-300 px-4 py-2">Publication Date</th>
@@ -94,11 +105,15 @@ const BookBulkUpload = () => {
           </ul>
         </div>
       )}
-      {validationErrors.length === 0 && previewData.length > 0 && (
-        <button className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-          Submit Books
-        </button>
-      )}
+      <div className="flex justify-center mt-5">
+       {validationErrors.length === 0 && previewData.length > 0 && (
+                <Button 
+                    onClick={handleSubmit} 
+                >
+                    Submit Books
+                </Button>
+            )}
+    </div>
     </div>
   );
 };

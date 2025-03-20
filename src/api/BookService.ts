@@ -89,7 +89,6 @@ export const fetchBookById = async (id: number): Promise<Book> => {
   }
 };
 
-
 export const fetchLanguages = async (): Promise<string[]> => {
   const response = await fetch(API_URL + "/languages");
   if (!response.ok) {

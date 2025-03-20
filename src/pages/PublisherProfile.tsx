@@ -11,9 +11,9 @@ const ProfilePage: React.FC = () => {
     const { publisher } = useAuth();
     const keycloakId = keycloak.tokenParsed?.sub;
     const [newEmail, setNewEmail] = useState("");
-    const [newPassword, setNewPassword] = useState("");
+    //const [newPassword, setNewPassword] = useState("");
     const [isEmailModalOpen, setEmailModalOpen] = useState(false);
-    const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
+    //const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [currentPublisher, setCurrentPublisher] = useState<Publisher | null>(null);
     const API_URL = "http://localhost:8081/api/v1/publishers";
@@ -44,15 +44,14 @@ const ProfilePage: React.FC = () => {
                     "Content-Type": "application/json",
                 },
             });
-            if (!keycloakResponse.ok) {
-                // If Keycloak update fails, alert and exit
-                alert("Failed to update email in Keycloak. Please try again later.");
+            
+            if (keycloakResponse.ok) {
+                alert("A verification email has been sent. Please check your inbox to vefify your new email for successful update.");
+                await updatePublisher(updatedPublisher?.id || 0, updatedPublisher);
+              } else {
+                alert("Failed to update email. Please try again later.");
                 throw new Error(`Keycloak update failed: ${keycloakResponse.statusText}`);
             }
-            // If Keycloak update succeeds, proceed to update email in the backend
-            await updatePublisher(updatedPublisher?.id || 0, updatedPublisher);
-            alert("Email updated successfully!");
-            window.location.reload();
         } catch (error) {
             console.error("Error updating email:", error);
         };
@@ -60,27 +59,24 @@ const ProfilePage: React.FC = () => {
     };
 
     const handlePasswordUpdate = async () => {
-        if (!newPassword.trim()) return alert("Please enter a new password!");
-
         try {
-            // Update password to keycloak
-            await fetch(`${API_URL}/${keycloakId}/update_password?newPassword=${newPassword}`, {
+            const response = await fetch(`${API_URL}/${keycloakId}/update_password`, {
                 method: "PUT",
                 headers: {
                     'Authorization': `Bearer ${keycloak.token}`,
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ password: newPassword }),
             });
 
-            alert("Password updated successfully!");
-            setPasswordModalOpen(false);
+            if (response.ok) {
+                alert(`A password reset email has been sent to ${currentPublisher?.email}. Please check your inbox to reset your password.`);
+              } else {
+                alert("Failed to send password reset email.");
+              }
         } catch (error) {
             console.error("Error updating password:", error);
-            alert("Failed to update password.");
         }
     };
-
 
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +101,7 @@ const ProfilePage: React.FC = () => {
                     <Button onClick={() => setEmailModalOpen(true)}>
                         Change E-mail
                     </Button>
-                    <Button onClick={() => setPasswordModalOpen(true)}>
+                    <Button onClick={handlePasswordUpdate}>
                         Change Password
                     </Button>
                 </div>
@@ -151,8 +147,8 @@ const ProfilePage: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* Password Update Modal */}
+{/* 
+            Password Update Modal
             {isPasswordModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/25">
                     <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -175,8 +171,8 @@ const ProfilePage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+            )}*/}
+        </div> 
     );
 };
 

@@ -15,6 +15,11 @@ const BookTable = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" }); 
   };
+
+  const formatDateToYear = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString([], { year: "numeric" }); 
+  };
   
   useEffect(() => {
     if (publisher && publisher.id !== undefined) {
@@ -34,7 +39,7 @@ const BookTable = () => {
             <th className="p-3 border-r border-black">ISBN</th>
             <th className="p-3 border-r border-black">Title</th>
             <th className="p-3 border-r border-black">Author</th>
-            <th className="p-3 border-r border-black">Publication Date</th>
+            <th className="p-3 border-r border-black">Publication Year</th>
             <th className="p-3 border-r border-black">Description</th>
             <th className="p-3 border-r border-black">Submitted</th>
             <th className="p-3 border-r border-black">Last Modified</th>
@@ -52,7 +57,7 @@ const BookTable = () => {
                 <td className="p-3 border-r border-black">
                   {book.authors.map((author) => `${author.firstName} ${author.lastName}`).join(", ")}
                 </td>
-                <td className="p-3 border-r border-black">{book.publicationDate}</td>
+                <td className="p-3 border-r border-black">{formatDateToYear(book.publicationDate)}</td>
                 <td className="p-3 border-r border-black">
                   {book.description.length > 100 ? `${book.description.slice(0, 20)}...` : book.description}
                 </td>

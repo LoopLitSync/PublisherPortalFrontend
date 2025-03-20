@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Book } from "../models/Book";
 import { submitBooks } from "../api/BookService";
+import Button from "./Button";
 
 const BookBulkUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -76,7 +77,7 @@ const BookBulkUpload = () => {
           <h3 className="text-xl font-semibold mb-2">Preview</h3>
           <table className="w-full border-collapse border border-gray-300">
             <thead>
-              <tr className="bg-purple-500 text-white">
+              <tr className="bg-[#8075FF] text-white">
                 <th className="border border-gray-300 px-4 py-2">ISBN</th>
                 <th className="border border-gray-300 px-4 py-2">Title</th>
                 <th className="border border-gray-300 px-4 py-2">Publication Date</th>
@@ -104,14 +105,15 @@ const BookBulkUpload = () => {
           </ul>
         </div>
       )}
+      <div className="flex justify-center mt-5">
        {validationErrors.length === 0 && previewData.length > 0 && (
-                <button 
-                    onClick={handleSubmit} // Use handleSubmit instead of submitBooks
-                    className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                <Button 
+                    onClick={handleSubmit} 
                 >
                     Submit Books
-                </button>
+                </Button>
             )}
+    </div>
     </div>
   );
 };

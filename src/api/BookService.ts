@@ -14,11 +14,27 @@ export const fetchBooks = async (): Promise<Book[]> => {
   }
 };
 
+export const fetchBooksByQuery = async (query = ""): Promise<Book[]> => {
+  try {
+    const response = await fetch(`${API_URL}/search?query=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      headers: {
+        "Authorization": `Bearer ${keycloak.token}`,
+        "Accept": "application/json",
+      }
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    return [];
+  }
+};
+
 export const fetchPublisherBooks = async (publisherId: number): Promise<Book[]> => {
   try {
     const response = await fetch(API_URL + `/publisher/${publisherId}`);
     if (!response.ok) throw new Error("Failed to fetch books");
-    return await response.json(); 
+    return await response.json();
   } catch (error) {
     console.error("Error fetching books:", error);
     return [];
@@ -42,9 +58,9 @@ export const submitBook = async (bookData: Partial<Book>, coverFile: File | null
 
     const response = await fetch(API_URL, {
       method: 'POST',
-      body: formData, 
+      body: formData,
       headers: {
-        "Accept": "application/json", 
+        "Accept": "application/json",
         "Authorization": `Bearer ${token}`,
       }
     });
@@ -137,32 +153,32 @@ export const updateBook = async (id: number, bookData: Partial<Book>, coverFile?
 
 export const submitBooks = async (selectedFile: File | null): Promise<string> => {
   try {
-      if (!selectedFile) {
-          throw new Error("No file selected!");
+    if (!selectedFile) {
+      throw new Error("No file selected!");
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    const token = keycloak.token;
+    if (!token) {
+      throw new Error("Not authenticated");
+    }
+    const response = await fetch("http://localhost:8081/api/v1/books/bulkupload", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Authorization": `Bearer ${token}`,
       }
+    });
 
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
 
-      const token = keycloak.token;
-      if (!token) {
-        throw new Error("Not authenticated");
-      }
-      const response = await fetch("http://localhost:8081/api/v1/books/bulkupload", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          }
-      });
-
-      if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      return await response.text(); 
+    return await response.text();
   } catch (error) {
-      console.error("Error uploading books:", error);
-      throw error; 
+    console.error("Error uploading books:", error);
+    throw error;
   }
 };

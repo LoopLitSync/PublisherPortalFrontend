@@ -120,6 +120,7 @@ export const updateBook = async (id: number, bookData: Partial<Book>, coverFile?
       method: "PUT",
       body: formData,
       headers: {
+        "Authorization": `Bearer ${keycloak.token}`,
         "Accept": "application/json",
       },
     });

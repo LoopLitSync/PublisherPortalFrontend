@@ -72,6 +72,5 @@ export function validateForm(formData: FormData): { isValid: boolean; errors: Er
         errors.isbn = "Invalid ISBN (must be ISBN-10 or ISBN-13)";
         isValid = false;
     }
-
     return { isValid, errors };
 }

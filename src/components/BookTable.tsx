@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchPublisherBooks } from "../api/BookService";
+import { fetchBooksByQuery, fetchPublisherBooks } from "../api/BookService";
 import { Book } from "../models/Book";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../utils/date.ts";
@@ -17,7 +17,7 @@ const formatDateToYear = (dateString: string) => {
   return date.toLocaleDateString([], { year: "numeric" }); 
 };
 
-const BookTable = () => {
+const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0); 
@@ -27,12 +27,16 @@ const BookTable = () => {
 
   useEffect(() => {
     if (publisher && publisher.id !== undefined) {
+      if (searchQuery.trim() === "") {
       fetchPublisherBooks(publisher.id, currentPage, 5, validationStatus).then(({ books, totalPages }) => {
         setBooks(books);
         setTotalPages(totalPages);
-      });
+      })
+    } else{
+      fetchBooksByQuery(searchQuery).then(setBooks);
+    };
     }
-  }, [publisher, currentPage, validationStatus]);
+  }, [publisher, currentPage, validationStatus, searchQuery]);
 
   const handleValidationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setValidationStatus(e.target.value);

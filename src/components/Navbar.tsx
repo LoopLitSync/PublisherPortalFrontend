@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import keycloak from '../keycloak';
-// import { Publisher } from '../models/Publisher';
-// import { fetchPublisherById } from '../api/PublisherService';
 import { useAuth } from "../AuthContext";
 
 
@@ -10,22 +8,7 @@ import { useAuth } from "../AuthContext";
 const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    // const [publisher, setPublisher] = useState<Publisher | null>(null);
-    const { publisher } = useAuth();
-
-
-    // useEffect(() => {
-    //     const currentPublisher = localStorage.getItem("loggedInPublisher");
-    //     if (currentPublisher) {
-    //         setPublisher(JSON.parse(currentPublisher));
-    //     }
-    // }, []);
-
-    // useEffect(() => {
-    //     // fetchPublisherById(publisher.id).then(setPublisher); 
-    //     fetchPublisherById(1).then(setPublisher); 
-    // }, []);
-
+    const { publisher, isAdmin } = useAuth();
 
     const profileMenuRef = useRef<HTMLDivElement>(null);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -64,12 +47,14 @@ const Navbar: React.FC = () => {
         return <p>Loading publisher...</p>;
     }
 
+    
+
     return (
         <nav className="bg-teal-500 relative">
             <div className="min-h-13 px-4 flex justify-between items-center">
                 <div className="flex items-center space-x-6">
                     <div className="text-white font-bold text-xl">
-                        <NavLink to="/" className="flex items-center space-x-2">
+                        <NavLink to={isAdmin ? `/admin` : `/`} className="flex items-center space-x-2">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -88,12 +73,19 @@ const Navbar: React.FC = () => {
                         </NavLink>
                     </div>
                     <div className="hidden md:flex">
-                        <NavLink to="/book-submission" className={({ isActive }) => getNavLinkClasses(isActive)}>
-                            Book Submission
-                        </NavLink>
-                        <NavLink to="/publisher-dashboard" className={({ isActive }) => getNavLinkClasses(isActive)}>
-                            Publisher Dashboard
-                        </NavLink>
+                        {isAdmin ? (
+                            <NavLink to="/admin" className={({ isActive }) => getNavLinkClasses(isActive)}>
+                                Admin
+                            </NavLink>
+                        ) : (
+                            <>
+                                <NavLink to="/book-submission" className={({ isActive }) => getNavLinkClasses(isActive)}>
+                                    Book Submission
+                                </NavLink><NavLink to="/publisher-dashboard" className={({ isActive }) => getNavLinkClasses(isActive)}>
+                                    Publisher Dashboard
+                                </NavLink>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -108,14 +100,23 @@ const Navbar: React.FC = () => {
 
                     {isMenuOpen && (
                         <div className="md:hidden absolute right-0 mt-9 w-30 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                            <NavLink to="/book-submission" className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-                                onClick={() => setIsMenuOpen(false)}>
-                                Submission
-                            </NavLink>
-                            <NavLink to="/publisher-dashboard" className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-                                onClick={() => setIsMenuOpen(false)}>
-                                Dashboard
-                            </NavLink>
+                            {isAdmin ? (
+                                <NavLink to="/admin" className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+                                    onClick={() => setIsMenuOpen(false)}>
+                                    Admin Dashboard
+                                </NavLink>
+                            ) : (
+                                <>
+                                    <NavLink to="/book-submission" className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+                                        onClick={() => setIsMenuOpen(false)}>
+                                        Submission
+                                    </NavLink>
+                                    <NavLink to="/publisher-dashboard" className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+                                        onClick={() => setIsMenuOpen(false)}>
+                                        Dashboard
+                                    </NavLink>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>
@@ -140,7 +141,7 @@ const Navbar: React.FC = () => {
                     {isProfileMenuOpen && (
                         <div className="absolute right-0 mt-11 w-35 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                             <NavLink
-                                to={`/publisher-profile/${publisher.id}`}
+                                to={isAdmin ? `/admin-profile/${publisher.id}` : `/publisher-profile/${publisher.id}`}
                                 className="flex items-center px-4 py-2 text-gray-700 space-x-2 hover:bg-gray-200"
                                 onClick={() => setIsProfileMenuOpen(false)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-5">

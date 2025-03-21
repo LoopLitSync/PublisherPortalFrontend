@@ -7,6 +7,8 @@ import Navbar from './components/Navbar';
 import BookDetails from './pages/BookDetails';
 import PrivateRoute from './PrivateRoute';
 import { AuthProvider } from './AuthContext';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminRoute from './AdminRoute';
 
 function App() {
     return (
@@ -21,6 +23,11 @@ function App() {
                         <Route path="/publisher-profile" element={<PublisherProfile />} />
                         <Route path="/publisher-profile/:id" element={<PublisherProfile />} />
                         <Route path="/book/:id" element={<BookDetails />} />
+                    </Route>
+                    <Route element={<AdminRoute />}>
+                        <Route path="/admin" element={<AdminDashboard />} />
+                        <Route path="/admin-profile" element={<PublisherProfile />} />
+                        <Route path="/admin-profile/:id" element={<PublisherProfile />} />
                     </Route>
                 </Routes>
             </Router>

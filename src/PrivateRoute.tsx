@@ -4,7 +4,7 @@ import { useAuth } from "./AuthContext";
 import keycloak from "./keycloak";
 
 const PrivateRoute = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isAdmin } = useAuth();
     const [loginUrl, setLoginUrl] = useState<string | null>(null);
 
     useEffect(() => {
@@ -19,6 +19,10 @@ const PrivateRoute = () => {
 
     if (!isAuthenticated && loginUrl) {
         return <Navigate to={loginUrl} />;
+    }
+
+    if (isAdmin) {
+        return <Navigate to="/admin" />;
     }
 
 

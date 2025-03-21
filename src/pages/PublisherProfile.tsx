@@ -6,6 +6,7 @@ import { Publisher } from "../models/Publisher";
 import { updatePublisher } from "../api/PublisherService";
 import { useEffect } from "react";
 import { fetchPublisherById } from "../api/PublisherService";
+import Inbox from "../components/Inbox";
 
 const ProfilePage: React.FC = () => {
     const { publisher } = useAuth();
@@ -42,11 +43,11 @@ const ProfilePage: React.FC = () => {
                     "Content-Type": "application/json",
                 },
             });
-            
+
             if (keycloakResponse.ok) {
                 alert("A verification email has been sent. Please check your inbox to vefify your new email for successful update.");
                 await updatePublisher(updatedPublisher?.id || 0, updatedPublisher);
-              } else {
+            } else {
                 alert("Failed to update email. Please try again later.");
                 throw new Error(`Keycloak update failed: ${keycloakResponse.statusText}`);
             }
@@ -68,9 +69,9 @@ const ProfilePage: React.FC = () => {
 
             if (response.ok) {
                 alert(`A password reset email has been sent to ${currentPublisher?.email}. Please check your inbox to reset your password.`);
-              } else {
+            } else {
                 alert("Failed to send password reset email.");
-              }
+            }
         } catch (error) {
             console.error("Error updating password:", error);
         }
@@ -88,64 +89,72 @@ const ProfilePage: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen items-center justify-center gap-10">
-            <div className="flex flex-col gap-4">
-                <h1 className="font-bold text-2xl">{currentPublisher?.name}</h1>
-                <div className="flex flex-row gap-2">
-                    <p className="font-bold">Email:</p>
-                    <p>{currentPublisher?.email}</p>
-                </div>
-                <div className="flex gap-2">
-                    <Button onClick={() => setEmailModalOpen(true)}>
-                        Change E-mail
-                    </Button>
-                    <Button onClick={handlePasswordUpdate}>
-                        Change Password
-                    </Button>
-                </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-4">
-                {publisher?.picture ? (
-                    <img className="rounded-full w-32 h-32 object-cover" src={currentPublisher?.picture || "/default_user.png"} alt={currentPublisher?.name || "Default User"} />
-                ) : (
-                    <img className="rounded-full w-32 h-32 object-cover" src="/default_user.png" />
-                )}
-                <Button
-                    onClick={() => document.getElementById("fileUpload")?.click()}>
-                    Change Picture
-                </Button>
-                <input type="file" id="fileUpload" className="hidden" onChange={handleFileChange} />
-                {selectedFile && (
-                    <Button onClick={handleUploadPicture}>
-                        Upload Picture
-                    </Button>
-                )}
-            </div>
-
-            {isEmailModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/25">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h2 className="text-lg font-bold mb-4">Update Email</h2>
-                        <input
-                            type="email"
-                            className="border p-2 w-full rounded-md"
-                            placeholder="New email"
-                            value={newEmail}
-                            onChange={(e) => setNewEmail(e.target.value)}
-                        />
-                        <div className="flex justify-end mt-4 gap-2">
-                            <Button onClick={handleEmailUpdate}>
-                                Update
+        <div className="flex justify-around gap-10">
+            <div className="flex gap-10 m-10">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                    <div className="flex flex-col gap-4 items-center mb-5">
+                        <h1 className="font-bold text-2xl">{currentPublisher?.name}</h1>
+                        <div className="flex flex-row gap-2">
+                            <p>{currentPublisher?.email}</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button onClick={() => setEmailModalOpen(true)}>
+                                Change E-mail
                             </Button>
-                            <button className=" bg-gray-500 text-white px-4 py-2 rounded-lg" onClick={() => setEmailModalOpen(false)}>
-                                Cancel
-                            </button>
+                            <Button onClick={handlePasswordUpdate}>
+                                Change Password
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-4">
+                        {publisher?.picture ? (
+                            <img className="rounded-full w-32 h-32 object-cover" src={currentPublisher?.picture || "/default_user.png"} alt={currentPublisher?.name || "Default User"} />
+                        ) : (
+                            <img className="rounded-full w-32 h-32 object-cover" src="/default_user.png" />
+                        )}
+                        <div className="flex gap-4">
+                            <Button
+                                onClick={() => document.getElementById("fileUpload")?.click()}>
+                                Change Picture
+                            </Button>
+                            <input type="file" id="fileUpload" className="hidden" onChange={handleFileChange} />
+                            {selectedFile && (
+                                <Button onClick={handleUploadPicture}>
+                                    Upload Picture
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
-            )}
-        </div> 
+
+                {isEmailModalOpen && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black/25">
+                        <div className="bg-white p-6 rounded-lg shadow-lg">
+                            <h2 className="text-lg font-bold mb-4">Update Email</h2>
+                            <input
+                                type="email"
+                                className="border p-2 w-full rounded-md"
+                                placeholder="New email"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                            />
+                            <div className="flex justify-end mt-4 gap-2">
+                                <Button onClick={handleEmailUpdate}>
+                                    Update
+                                </Button>
+                                <button className=" bg-gray-500 text-white px-4 py-2 rounded-lg" onClick={() => setEmailModalOpen(false)}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <div className="grow-2">
+                <Inbox />
+            </div>
+        </div>
     );
 };
 

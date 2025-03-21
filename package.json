@@ -17,6 +17,7 @@
   "dependencies": {
     "@react-keycloak-fork/web": "^4.0.3",
     "@react-keycloak/web": "^3.4.0",
+    "@stomp/stompjs": "^7.0.1",
     "@tailwindcss/vite": "^4.0.12",
     "@types/keycloak-js": "^2.5.4",
     "@types/react": "^18.3.18",
@@ -28,6 +29,7 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-router-dom": "^7.3.0",
+    "sockjs-client": "^1.6.1",
     "tailwindcss": "^4.0.12"
   },
   "devDependencies": {
@@ -38,6 +40,7 @@
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.16",
     "@types/react-dom": "^18.3.5",
+    "@types/sockjs-client": "^1.5.4",
     "@vitejs/plugin-react": "^4.3.4",
     "cypress": "^14.1.0",
     "eslint": "^9.21.0",

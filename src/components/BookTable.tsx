@@ -83,7 +83,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
             onChange={handleValidationStatusChange}
           >
             <option value="ALL">All</option>
-            <option value="NEEDS_REVISION">Needs validation</option>
+            <option value="NEEDS_REVISION">Needs revision</option>
           </select>
         </div>
         <div className="text-right font-semibold">

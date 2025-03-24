@@ -4,6 +4,7 @@ import keycloak from '../keycloak';
 // import { Publisher } from '../models/Publisher';
 // import { fetchPublisherById } from '../api/PublisherService';
 import { useAuth } from "../AuthContext";
+import { fetchPublisherById } from '../api/PublisherService';
 
 
 
@@ -12,6 +13,7 @@ const Navbar: React.FC = () => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     // const [publisher, setPublisher] = useState<Publisher | null>(null);
     const { publisher } = useAuth();
+    const [publisherPic, setPublisherPic] = useState<string | null>(null);
 
 
     // useEffect(() => {
@@ -25,7 +27,17 @@ const Navbar: React.FC = () => {
     //     // fetchPublisherById(publisher.id).then(setPublisher); 
     //     fetchPublisherById(1).then(setPublisher); 
     // }, []);
-
+      useEffect(() => {
+        if (publisher?.id) {
+            fetchPublisherById(publisher.id)
+                .then((data) => {
+                    if (data?.picture) {
+                        setPublisherPic(data.picture); 
+                    }
+                })
+                .catch((err) => console.error("Error fetching publisher: ", err));
+        }
+    }, [publisher?.id]);
 
     const profileMenuRef = useRef<HTMLDivElement>(null);
     const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -125,16 +137,11 @@ const Navbar: React.FC = () => {
                         onClick={() => setIsProfileMenuOpen((prev) => !prev)}
                         className="flex items-center space-x-2 text-white focus:outline-none" style={{ cursor: "pointer" }}>
                         <span className="hidden md:block">Welcome, {publisher.name}</span>
-                        {publisher.picture ? (
+
                             <img
-                                src={publisher.picture}
-                                alt="Profile"
+                            src={publisherPic || "/default_user.png"}
+                                alt={publisher?.name || "Default User"}
                                 className="w-10 h-10 right-3 rounded-full border border-white" />
-                        ) : (<img
-                            src="/default_user.png"
-                            alt="Profile"
-                            className="w-10 h-10 right-3 rounded-full border border-white" />)
-                        }
                     </button>
 
                     {isProfileMenuOpen && (

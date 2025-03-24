@@ -90,8 +90,8 @@ const BookSubmissionForm = () => {
       } else {
         setMessage("Failed to submit the book. Please try again.");
       }
-    } catch {
-      setMessage("An error occurred while submitting the book.");
+    } catch (error) {
+      setMessage(`An error occurred while submitting the book: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 

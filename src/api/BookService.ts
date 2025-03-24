@@ -32,9 +32,9 @@ export const fetchBooksByQuery = async (query = ""): Promise<Book[]> => {
 };
 
 export const fetchPublisherBooks = async (
-  publisherId: number, 
-  page: number = 0, 
-  size: number = 10, 
+  publisherId: number,
+  page: number = 0,
+  size: number = 10,
   validationStatus: string = "NEEDS_REVISION"
 ): Promise<{ books: Book[], totalPages: number }> => {
   try {
@@ -43,9 +43,9 @@ export const fetchPublisherBooks = async (
 
     if (!response.ok) throw new Error("Failed to fetch books");
 
-    const data = await response.json(); 
-    
-    return { books: data.content, totalPages: data.totalPages }; 
+    const data = await response.json();
+
+    return { books: data.content, totalPages: data.totalPages };
   } catch (error) {
     console.error("Error fetching books:", error);
     return { books: [], totalPages: 0 }; // Default response if error occurs
@@ -77,15 +77,15 @@ export const submitBook = async (bookData: Partial<Book>, coverFile: File | null
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error submitting book:', response.status, errorText);
-      throw new Error(errorText);
+      const error = await response.json(); 
+      console.error("Error from backend:", error);  
+      throw new Error(error.error || "Unknown error");
     }
 
     return await response.json();
   } catch (error) {
     console.error('Error submitting book:', error);
-    throw new Error('Failed to submit book');
+    throw error;
   }
 };
 

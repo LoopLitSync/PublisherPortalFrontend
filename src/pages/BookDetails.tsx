@@ -8,7 +8,7 @@ import EditBookModal from "../components/EditBookModal.tsx";
 import { formatDate } from "../utils/date.ts";
 import { fetchBookVersionsByBookId, rollbackBookVersion } from "../api/BookVersionService.ts";
 import { BookVersion } from "../models/BookVersion.ts";
-import { Book as BookIcon } from "lucide-react";
+import { AlertTriangle, Book as BookIcon } from "lucide-react";
 import React from "react";
 import Card from "../components/Card.tsx";
 import TextTruncate from "../components/TextTruncate.tsx";
@@ -100,8 +100,13 @@ function BookDetails() {
             <p>{book.isbn}</p>
           </div>
 
-          <p className="font-bold">Description:</p>
-          <TextTruncate text={book.description} maxLength={500} />
+          <div className="flex items-center gap-2">
+            <p className="font-bold">Description:</p>
+            <TextTruncate text={book.description} maxLength={500} />
+            {(!book.description || book.description.trim() === "") && (
+              <AlertTriangle className="text-red-500" />
+            )}
+          </div>
 
           <div className="border-t border-gray-800 w-full"></div>
 
@@ -113,11 +118,14 @@ function BookDetails() {
             <p className="font-bold">Publication date:</p>
             <p>{book.publicationDate}</p>
           </div>
-          <div className='flex flex-row gap-2'>
+
+          <div className="flex items-center gap-2">
             <p className="font-bold">Genres:</p>
-            {book.genres.map((genre, index) => (
-              <p key={index}>{genre}</p>
-            ))}
+            {book.genres.length > 0 ? (
+              book.genres.map((genre, index) => <p key={index}>{genre}</p>)
+            ) : (
+              <AlertTriangle className="text-red-500" />
+            )}
           </div>
 
           <div className="border-t border-gray-800 w-full"></div>

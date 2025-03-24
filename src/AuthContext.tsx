@@ -32,7 +32,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     keycloakId: keycloak.tokenParsed?.sub || "",
                     name: keycloak.tokenParsed?.preferred_username || "",
                     email: keycloak.tokenParsed?.email || "",
-                    picture: keycloak.tokenParsed?.picture,
+                    picture: keycloak.tokenParsed?.picture || null,
+                    isEnabled: keycloak.tokenParsed?.isEnabled || true,
                 };
 
                 fetch(`http://localhost:8081/api/v1/publishers/keycloak/${publisherData.keycloakId}`, {

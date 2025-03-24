@@ -22,17 +22,13 @@ const ProfilePage: React.FC = () => {
         }
     }, [publisher]);
 
+    
     const handleEmailUpdate = async () => {
         if (!newEmail.trim()) return alert("Please enter a valid email!");
-
-        const updatedPublisher: Publisher = {
-            ...publisher,
-            id: publisher?.id || 0,
-            keycloakId: publisher?.keycloakId || "",
-            name: publisher?.name || "",
-            email: newEmail,
-            picture: publisher?.picture || null,
-        };
+        
+        if (currentPublisher) {
+            currentPublisher.email = newEmail;
+        }
 
         try {
             const keycloakResponse = await fetch(`${API_URL}/${keycloakId}/update_email?newEmail=${newEmail}`, {
@@ -45,7 +41,9 @@ const ProfilePage: React.FC = () => {
             
             if (keycloakResponse.ok) {
                 alert("A verification email has been sent. Please check your inbox to vefify your new email for successful update.");
-                await updatePublisher(updatedPublisher?.id || 0, updatedPublisher);
+                if (currentPublisher) {
+                    await updatePublisher(currentPublisher?.id || 0, currentPublisher);
+                }
               } else {
                 alert("Failed to update email. Please try again later.");
                 throw new Error(`Keycloak update failed: ${keycloakResponse.statusText}`);

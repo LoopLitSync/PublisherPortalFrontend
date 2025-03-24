@@ -6,6 +6,7 @@ import { Publisher } from "../models/Publisher";
 import { updatePublisher } from "../api/PublisherService";
 import { useEffect } from "react";
 import { fetchPublisherById } from "../api/PublisherService";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ProfilePage: React.FC = () => {
     const { publisher } = useAuth();
@@ -14,18 +15,21 @@ const ProfilePage: React.FC = () => {
     const [isEmailModalOpen, setEmailModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [currentPublisher, setCurrentPublisher] = useState<Publisher | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const API_URL = "http://localhost:8081/api/v1/publishers";
 
     useEffect(() => {
         if (publisher) {
             fetchPublisherById(Number(publisher.id)).then(setCurrentPublisher);
+            setIsLoading(false);
         }
     }, [publisher]);
 
-    
+
     const handleEmailUpdate = async () => {
         if (!newEmail.trim()) return alert("Please enter a valid email!");
-        
+
+        setIsLoading(true);
         if (currentPublisher) {
             currentPublisher.email = newEmail;
         }
@@ -38,20 +42,20 @@ const ProfilePage: React.FC = () => {
                     "Content-Type": "application/json",
                 },
             });
-            
+            setIsLoading(false);
+            setEmailModalOpen(false);
             if (keycloakResponse.ok) {
-                alert("A verification email has been sent. Please check your inbox to vefify your new email for successful update.");
+                alert("A verification email has been sent. Please check your inbox to verify your new email. \n\nNote: The new email will be updated in your profile after next login.");
                 if (currentPublisher) {
                     await updatePublisher(currentPublisher?.id || 0, currentPublisher);
                 }
-              } else {
+            } else {
                 alert("Failed to update email. Please try again later.");
                 throw new Error(`Keycloak update failed: ${keycloakResponse.statusText}`);
             }
         } catch (error) {
             console.error("Error updating email:", error);
         };
-        setEmailModalOpen(false);
     };
 
     const handlePasswordUpdate = async () => {
@@ -65,10 +69,10 @@ const ProfilePage: React.FC = () => {
             });
 
             if (response.ok) {
-                alert(`A password reset email has been sent to ${currentPublisher?.email}. Please check your inbox to reset your password.`);
-              } else {
+                alert(`A password reset email has been sent to ${publisher?.email}. Please check your inbox to reset your password.`);
+            } else {
                 alert("Failed to send password reset email.");
-              }
+            }
         } catch (error) {
             console.error("Error updating password:", error);
         }
@@ -85,13 +89,14 @@ const ProfilePage: React.FC = () => {
         console.log("Uploading picture:", selectedFile);
     };
 
+
     return (
         <div className="flex h-screen items-center justify-center gap-10">
             <div className="flex flex-col gap-4">
                 <h1 className="font-bold text-2xl">{currentPublisher?.name}</h1>
                 <div className="flex flex-row gap-2">
                     <p className="font-bold">Email:</p>
-                    <p>{currentPublisher?.email}</p>
+                    <p>{publisher?.email}</p>
                 </div>
                 <div className="flex gap-2">
                     <Button onClick={() => setEmailModalOpen(true)}>
@@ -122,28 +127,36 @@ const ProfilePage: React.FC = () => {
             </div>
 
             {isEmailModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/25">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h2 className="text-lg font-bold mb-4">Update Email</h2>
-                        <input
-                            type="email"
-                            className="border p-2 w-full rounded-md"
-                            placeholder="New email"
-                            value={newEmail}
-                            onChange={(e) => setNewEmail(e.target.value)}
-                        />
-                        <div className="flex justify-end mt-4 gap-2">
-                            <Button onClick={handleEmailUpdate}>
-                                Update
-                            </Button>
-                            <button className=" bg-gray-500 text-white px-4 py-2 rounded-lg" onClick={() => setEmailModalOpen(false)}>
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
+                
+                <div className="fixed inset-0 flex items-center justify-center bg-black/15">
+                    {!isLoading ?
+                        <div className="bg-white p-6 rounded-lg shadow-lg">
+                            <div>
+                                <h2 className="text-lg font-bold mb-4">Update Email</h2>
+                                <input
+                                    type="email"
+                                    className="border p-2 w-full rounded-md"
+                                    placeholder="New email"
+                                    value={newEmail}
+                                    onChange={(e) => setNewEmail(e.target.value)}
+                                />
+                                <div className="flex justify-end mt-4 gap-2">
+                                    <Button onClick={handleEmailUpdate}>
+                                        Update
+                                    </Button>
+                                    <button className=" bg-gray-500 text-white px-4 py-2 rounded-lg" onClick={() => setEmailModalOpen(false)}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div> : ((<LoadingSpinner />)
+                    )}
+
                 </div>
+
+
             )}
-        </div> 
+        </div>
     );
 };
 

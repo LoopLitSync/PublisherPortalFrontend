@@ -4,6 +4,7 @@ import keycloak from "../keycloak";
 import { updatePublisher } from "../api/PublisherService";
 import { fetchPublisherByKeycloakId } from "../api/PublisherService";
 import { deletePublisher } from "../api/PublisherService";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface KeycloakUser {
     id: string;
@@ -39,6 +40,7 @@ const AdminArea = () => {
 
 
     const handleEnableDisable = async (keycloakId: string, enable: boolean) => {
+        //setLoading(true);
         const currentPublisher = await fetchPublisherByKeycloakId(keycloakId);
         currentPublisher.isEnabled = enable;
 
@@ -49,6 +51,7 @@ const AdminArea = () => {
                     "Authorization": `Bearer ${keycloak.token}`,
                 },
             });
+            //setLoading(false);
             if (keycloakResponse.ok) {
                 alert(`User has been ${enable ? "enabled" : "disabled"} successfully.`);
                 await updatePublisher(currentPublisher?.id || 0, currentPublisher);
@@ -94,7 +97,7 @@ const AdminArea = () => {
         <div className="p-6">
             <span className="text-2xl font-bold block text-center mb-2">User List</span>
             {isLoading ? (
-                <div>Loading...</div>
+                <LoadingSpinner/>
             ) : (
                 <table className="w-full border border-black bg-white shadow-lg">
                     <thead>

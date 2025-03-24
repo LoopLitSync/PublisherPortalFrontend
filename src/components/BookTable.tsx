@@ -129,21 +129,31 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
                   <td className="p-3 border-r border-black truncate">{formatDate(book.submissionDate)}</td>
                   <td className="p-3 border-r border-black truncate">{formatDateWithoutTime(book.updatedDate)}</td>
                   <td
-                    className="p-3 border-r border-black truncate relative group cursor-pointer"
-                    title={book.description.length === 0 ? "Description is missing" : ""}
-                  >
-                    {book.validationStatus === "NEEDS_REVISION" ? (
-                      <div className="text-red-500 flex items-center">
-                        <FaExclamationTriangle className="mr-2" />
-                        Needs revision
-                        <div className="absolute bg-gray-700 text-white p-2 rounded-lg hidden group-hover:block">
-                          {book.description.length === 0 ? "Description is missing" : "Other issues"}
-                        </div>
+                  className="p-3 border-r border-black truncate relative group cursor-pointer"
+                  title={
+                    book.genres.length === 0
+                      ? "No genres"
+                      : book.description.length === 0
+                      ? "Description is missing"
+                      : "Other issues"
+                  }
+                >
+                  {book.validationStatus === "NEEDS_REVISION" ? (
+                    <div className="text-red-500 flex items-center">
+                      <FaExclamationTriangle className="mr-2" />
+                      Needs revision
+                      <div className="absolute bg-gray-700 text-white p-2 rounded-lg hidden group-hover:block">
+                        {book.genres.length === 0
+                          ? "No genres"
+                          : book.description.length === 0
+                          ? "Description is missing"
+                          : "Other issues"}
                       </div>
-                    ) : (
-                      "Approved"
-                    )}
-                  </td>
+                    </div>
+                  ) : (
+                    "Approved"
+                  )}
+                </td>
                 </tr>
               ))
             ) : (

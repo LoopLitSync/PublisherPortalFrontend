@@ -69,6 +69,9 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
     return <p className="text-center mt-10">Loading publisher dashboard...</p>;
   }
 
+  const approvedCount = allBooks.filter(book => book.validationStatus === "APPROVED").length;
+  const needsRevisionCount = allBooks.filter(book => book.validationStatus === "NEEDS_REVISION").length;
+
   return (
     <div className="p-6">
       <div className="mb-4">
@@ -144,6 +147,8 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
           Next
         </button>
       </div>
+
+      <div className="mt-5">Approved: {approvedCount} | Needs Revision: {needsRevisionCount}</div>
 
       <div className="flex justify-end mt-5">
         <Button onClick={() => navigate("/book-submission")}>Submit New Book</Button>

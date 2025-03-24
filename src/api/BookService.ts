@@ -77,9 +77,14 @@ export const submitBook = async (bookData: Partial<Book>, coverFile: File | null
     });
 
     if (!response.ok) {
-      const error = await response.json(); 
-      console.error("Error from backend:", error);  
-      throw new Error(error.error || "Unknown error");
+      const responseText = await response.text();  
+      if (responseText) {
+        const error = JSON.parse(responseText);
+        console.error("Error from backend:", error);
+        throw new Error(error.error || "Unknown error");
+      } else {
+        throw new Error("Unknown error: No response from server");
+      }
     }
 
     return await response.json();

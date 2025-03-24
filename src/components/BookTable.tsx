@@ -74,16 +74,21 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
 
   return (
     <div className="p-6">
-      <div className="mb-4">
-        <label htmlFor="validationStatus" className="mr-2">Filter by Validation Status:</label>
-        <select 
-          id="validationStatus"
-          value={validationStatus}
-          onChange={handleValidationStatusChange}
-        >
-          <option value="ALL">All</option>
-          <option value="NEEDS_REVISION">Needs validation</option>
-        </select>
+       <div className="flex justify-between mb-4">
+        <div>
+          <label htmlFor="validationStatus" className="mr-2">Filter by Validation Status:</label>
+          <select 
+            id="validationStatus"
+            value={validationStatus}
+            onChange={handleValidationStatusChange}
+          >
+            <option value="ALL">All</option>
+            <option value="NEEDS_REVISION">Needs validation</option>
+          </select>
+        </div>
+        <div className="text-right font-semibold">
+          Approved: {approvedCount} | Needs Revision: {needsRevisionCount}
+        </div>
       </div>
       
       <div className="overflow-x-auto">
@@ -147,8 +152,6 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
           Next
         </button>
       </div>
-
-      <div className="mt-5">Approved: {approvedCount} | Needs Revision: {needsRevisionCount}</div>
 
       <div className="flex justify-end mt-5">
         <Button onClick={() => navigate("/book-submission")}>Submit New Book</Button>

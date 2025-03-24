@@ -148,21 +148,21 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
             </div>
 
             <div className="flex flex-col items-center gap-4">
-    <img
-        className="rounded-full w-32 h-32 object-cover"
-        src={previewUrl || currentPublisher?.picture || "/default_user.png"}
-        alt={currentPublisher?.name || "Default User"}
-    />
-    <Button onClick={() => document.getElementById("fileUpload")?.click()}>
-        Change Picture
-    </Button>
-    <input type="file" id="fileUpload" className="hidden" onChange={handleFileChange} />
-    {selectedFile && (
-        <Button onClick={handleUploadPicture}>
-            Upload Picture
-        </Button>
-    )}
-</div>
+            <img
+                className="rounded-full w-32 h-32 object-cover"
+                src={previewUrl || currentPublisher?.picture || "/default_user.png"}
+                alt={currentPublisher?.name || "Default User"}
+            />
+            <Button onClick={() => document.getElementById("fileUpload")?.click()}>
+                Change Picture
+            </Button>
+            <input type="file" id="fileUpload" className="hidden" onChange={handleFileChange} />
+            {selectedFile && (
+                <Button onClick={handleUploadPicture}>
+                    Upload Picture
+                </Button>
+            )}
+        </div>
 
             {isEmailModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/25">

@@ -10,6 +10,7 @@ const BookBulkUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<Book[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const validateBooks = (books: Book[]) => {
     const errors: string[] = [];
@@ -33,11 +34,15 @@ const BookBulkUpload = () => {
   };
 
   const handleSubmit = async () => {
+    setIsUploading(true);
     try {
       const report = await submitBooks(selectedFile);
       alert("Bulk upload complete: " + report);
     } catch {
       alert("Error uploading books");
+    } finally {
+      setIsUploading(false);
+      setPreviewData([]);
     }
   };
 
@@ -138,9 +143,16 @@ const BookBulkUpload = () => {
       )}
       <div className="flex justify-center mt-5">
         {validationErrors.length === 0 && previewData.length > 0 && (
-          <Button onClick={handleSubmit}>
-            Submit Books
-          </Button>
+          <Button onClick={handleSubmit} disabled={isUploading}>
+          {isUploading ? (
+            <>
+              Uploading...
+            </>
+          ) : (
+            "Submit Books"
+          )}
+        </Button>
+        
         )}
       </div>
     </div>

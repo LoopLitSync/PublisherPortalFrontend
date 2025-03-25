@@ -6,10 +6,6 @@ import { formatDate } from "../utils/date.ts";
 import { useAuth } from "../AuthContext.tsx";
 import Button from "./Button.tsx";
 import { FaExclamationTriangle } from 'react-icons/fa'; 
-const formatDateWithoutTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" }); 
-};
 
 const formatDateToYear = (dateString: string) => {
   const date = new Date(dateString);
@@ -127,7 +123,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
                   )}
                 </td>
                   <td className="p-3 border-r border-black truncate">{formatDate(book.submissionDate)}</td>
-                  <td className="p-3 border-r border-black truncate">{formatDateWithoutTime(book.updatedDate)}</td>
+                  <td className="p-3 border-r border-black truncate">{formatDate(book.updatedDate)}</td>
                   <td
                   className="p-3 border-r border-black truncate relative group cursor-pointer"
                   title={

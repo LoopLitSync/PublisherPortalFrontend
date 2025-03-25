@@ -46,6 +46,17 @@ const BookBulkUpload = () => {
     }
   };
 
+  function filterFieldsBasedOnModel(author: Record<string, any>, modelFields: string[]) {
+    return Object.keys(author)
+      .filter(key => modelFields.includes(key))
+      .reduce((obj: Record<string, any>, key) => {
+        obj[key] = author[key];
+        return obj;
+      }, {});
+  }
+  
+  const authorModelFields = ['firstName', 'lastName', 'year'];
+
   const processFile = (file: File) => {
     const reader = new FileReader();
     const fileType = file.type;
@@ -62,7 +73,17 @@ const BookBulkUpload = () => {
           title: row.title,
           description: row.description || "", 
           publicationYear: row.publishedyear || row.publicationYear, 
-          authors: row.authors ? row.authors.map((author: any) => ({ name: author.name || author.trim() })) : [],
+          authors: row.authors
+          ? row.authors.map((author: any) => {
+              const filteredAuthor = filterFieldsBasedOnModel(author, authorModelFields);
+
+              return {
+                firstName: filteredAuthor.firstName ? filteredAuthor.firstName.trim() : "",
+                lastName: filteredAuthor.lastName ? filteredAuthor.lastName.trim() : "",
+                year: filteredAuthor.year || ""
+              };
+            })
+          : [],         
           genres: row.genres ? row.genres.map((genre: string) => genre.trim()) : [],
           language: row.language || "",
           coverImg: row.coverimg || row.coverImg || null,

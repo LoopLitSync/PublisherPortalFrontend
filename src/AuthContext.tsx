@@ -5,6 +5,7 @@ import { Publisher } from "./models/Publisher";
 interface AuthContextType {
     publisher: Publisher | null;
     isAuthenticated: boolean;
+    isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -18,6 +19,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [publisher, setPublisher] = useState<Publisher | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         if (keycloak.authenticated) {
@@ -30,7 +32,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     keycloakId: keycloak.tokenParsed?.sub || "",
                     name: keycloak.tokenParsed?.preferred_username || "",
                     email: keycloak.tokenParsed?.email || "",
-                    picture: keycloak.tokenParsed?.picture,
+                    picture: keycloak.tokenParsed?.picture || null,
+                    isEnabled: keycloak.tokenParsed?.isEnabled || true,
                 };
 
                 fetch(`http://localhost:8081/api/v1/publishers/keycloak/${publisherData.keycloakId}`, {
@@ -62,11 +65,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                             .catch(error => console.error("Error registering publisher:", error));
                     });
             }
+            const roles = keycloak.tokenParsed?.realm_access?.roles || [];
+            setIsAdmin(roles.includes("admin"));
         }
     }, [keycloak.authenticated]);
 
     return (
-        <AuthContext.Provider value={{ publisher, isAuthenticated }}>
+        <AuthContext.Provider value={{ publisher, isAuthenticated, isAdmin }}>
             {children}
         </AuthContext.Provider>
     );

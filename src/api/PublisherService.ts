@@ -1,5 +1,5 @@
 import { Publisher } from "../models/Publisher";
-import keycloak from "../keycloak";
+//import keycloak from "../keycloak";
 
 const API_URL = "http://localhost:8081/api/v1/publishers";
 
@@ -17,23 +17,37 @@ const API_URL = "http://localhost:8081/api/v1/publishers";
 export const fetchPublisherById = async (id: number): Promise<Publisher> => {
   const response = await fetch(API_URL + `/${id}`);
   if (!response.ok) {
-      throw new Error("Failed to fetch publisher details");
+    throw new Error("Failed to fetch publisher details");
+  }
+  return response.json();
+};
+
+export const fetchPublisherByKeycloakId = async (keycloakId: string): Promise<Publisher> => {
+  const response = await fetch(API_URL + `/keycloak/${keycloakId}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch publisher details");
   }
   return response.json();
 };
 
 export const updatePublisher = async (id: number, publisher: Publisher): Promise<void> => {
-  try {
-    const response = await fetch(API_URL + `/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${keycloak.token}`,
-      },
-      body: JSON.stringify(publisher),
-    });
-    if (!response.ok) throw new Error("Failed to update publisher in backend");
-  } catch (error) {
-    console.error("Error updating publisher:", error);
+  const response = await fetch(API_URL + `/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"},
+    body: JSON.stringify(publisher)
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update publisher");
+  }
+};
+
+
+export const deletePublisher = async (id: number): Promise<void> => {
+  const response = await fetch(API_URL + `/${id}`, {
+    method: "DELETE"
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete publisher");
   }
 };

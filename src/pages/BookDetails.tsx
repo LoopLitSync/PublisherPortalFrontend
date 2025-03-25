@@ -168,7 +168,7 @@ function BookDetails() {
             {bookVersions.length > 0 ? (
               bookVersions
                 .sort((a, b) => b.id.version - a.id.version)
-                .map((book, index) => (
+                .map((bookVersion, index) => (
                   <React.Fragment key={index}>
                     {/* Main Row */}
                     <tr
@@ -176,10 +176,10 @@ function BookDetails() {
                       onClick={() => toggleRow(index)}
                     >
                       <td className="p-3 border-r border-black">{book.isbn}</td>
-                      <td className="p-3 border-r border-black">{book.title}</td>
-                      <td className="p-3 border-r border-black">{book.id.version}</td>
-                      <td className="p-3 border-r border-black">{formatDate(book.updatedDate)}</td>
-                      <td className="p-3 border-r border-black">{book.validationStatus}</td>
+                      <td className="p-3 border-r border-black">{bookVersion.title}</td>
+                      <td className="p-3 border-r border-black">{bookVersion.id.version}</td>
+                      <td className="p-3 border-r border-black">{formatDate(bookVersion.updatedDate)}</td>
+                      <td className="p-3 border-r border-black">{bookVersion.validationStatus}</td>
                       <td className="p-3 text-center border-black">
                         <span
                           className={`transition-transform duration-300 inline-block ${expandedRow === index ? "rotate-180" : ""
@@ -199,8 +199,8 @@ function BookDetails() {
                         <td colSpan={5} className="p-4">
                           <div className="grid grid-cols-1 md:grid-cols-[20%_80%] gap-4 relative">
                             {/* Cover Image */}
-                            {book.coverImage ? (
-                              <img className="rounded-lg w-56 h-80 object-cover" src={book.coverImage} alt={book.title} />
+                            {bookVersion.coverImage ? (
+                              <img className="rounded-lg w-56 h-80 object-cover" src={bookVersion.coverImage} alt={book.title} />
                             ) : (
                               <div className="w-56 h-80 flex items-center justify-center rounded-lg border border-gray-400 bg-gradient-to-br from-white to-[#8075FF] text-gray-700">
                                 <BookIcon className="size-12 text-[#8075FF]" />
@@ -209,24 +209,24 @@ function BookDetails() {
 
                             {/* Additional Details */}
                             <div className="flex flex-col gap-2">
-                              <p><strong>Description:</strong> {book.description}</p>
-                              <p><strong>Language:</strong> {book.language}</p>
-                              <p><strong>Publication Date:</strong> {book.publicationDate}</p>
-                              <p><strong>Genres:</strong> {book.genres.map(g => g.type).join(", ")}</p>
+                              <p><strong>Description:</strong> {bookVersion.description}</p>
+                              <p><strong>Language:</strong> {bookVersion.language}</p>
+                              <p><strong>Publication Date:</strong> {bookVersion.publicationDate}</p>
+                              <p><strong>Genres:</strong> {bookVersion.genres.map(g => g.type).join(", ")}</p>
                               <p><strong>Authors:</strong></p>
                               <ul className="list-disc ml-6">
-                                {book.authors.map(author => (
+                                {bookVersion.authors.map(author => (
                                   <li key="">{author.firstName} {author.lastName} ({author.year})</li>
                                 ))}
                               </ul>
                             </div>
                             <div className="absolute bottom-0 right-0">
-                              {!book.activeVersion ? (
+                              {!bookVersion.activeVersion ? (
                                 <Button
                                   onClick={() => {
                                     const confirmRollback = window.confirm("Are you sure you want to rollback to this previous version?");
                                     if (confirmRollback) {
-                                      onRollback(book.id.bookId, book.id.version);
+                                      onRollback(bookVersion.id.bookId, bookVersion.id.version);
                                     }
                                   }}>Rollback</Button>
                               ) : (

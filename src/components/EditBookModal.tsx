@@ -25,7 +25,6 @@ interface EditBookModalProps {
 function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
     const [formData, setFormData] = useState<{
         id: number;
-        isbn: string;
         title: string;
         authors: Author[];
         description: string;
@@ -35,7 +34,6 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         coverImg: string;
     }>({
         id: book.id,
-        isbn: book.isbn,
         title: "",
         authors: [],
         description: "",
@@ -51,8 +49,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         description: "",
         language: "",
         publicationDate: "",
-        genres: "",
-        isbn: ""
+        genres: ""
     });
 
     const [languages, setLanguages] = useState<string[]>([]);
@@ -77,7 +74,6 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         if (book) {
             setFormData({
                 id: book.id,
-                isbn: book.isbn,
                 title: book.title,
                 authors: book.authors || [],
                 description: book.description,
@@ -186,15 +182,6 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     <label className="text-lg">Title</label>
                     <input className="w-full p-2 border rounded" name="title" value={formData.title} onChange={handleChange} placeholder="Title" />
                     {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
-                    <label className="text-lg">ISBN</label>
-                    <input 
-                        className="w-full p-2 border rounded"
-                        name="isbn"
-                        value={formData.isbn}
-                        onChange={handleChange}
-                        placeholder="ISBN" 
-                    />
-                    {errors.isbn && <p className="text-red-500 text-sm">{errors.isbn}</p>}  
 
                     <div>
                         <label className="text-lg">Authors</label>

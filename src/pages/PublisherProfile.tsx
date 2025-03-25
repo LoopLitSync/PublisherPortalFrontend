@@ -79,15 +79,53 @@ const ProfilePage: React.FC = () => {
     };
 
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files) {
-            setSelectedFile(event.target.files[0]);
+
+    const handleUploadPicture= async () => {
+        if (!selectedFile) {
+            alert("Please select a file before uploading.");
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+    
+        try {
+            const response = await fetch(`${API_URL}/${keycloakId}/update_image`, {
+                method: "PUT",
+                headers: {
+                    'Authorization': `Bearer ${keycloak.token}`,
+                },
+                body: formData,
+            });
+    
+            if (response.ok) {
+                alert("Profile picture updated successfully.");
+                const updatedPublisher = await fetchPublisherById(Number(publisher?.id));
+                setCurrentPublisher(updatedPublisher);
+            } else {
+                const errorMessage = await response.text();
+                alert(`Failed to upload image: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            alert("An error occurred while uploading the image.");
         }
     };
 
-    const handleUploadPicture = () => {
-        console.log("Uploading picture:", selectedFile);
-    };
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+        const file = event.target.files[0];
+        setSelectedFile(file);
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
 
     return (
@@ -109,22 +147,21 @@ const ProfilePage: React.FC = () => {
             </div>
 
             <div className="flex flex-col items-center gap-4">
-                {publisher?.picture ? (
-                    <img className="rounded-full w-32 h-32 object-cover" src={currentPublisher?.picture || "/default_user.png"} alt={currentPublisher?.name || "Default User"} />
-                ) : (
-                    <img className="rounded-full w-32 h-32 object-cover" src="/default_user.png" />
-                )}
-                <Button
-                    onClick={() => document.getElementById("fileUpload")?.click()}>
-                    Change Picture
+            <img
+                className="rounded-full w-32 h-32 object-cover"
+                src={previewUrl || currentPublisher?.picture || "/default_user.png"}
+                alt={currentPublisher?.name || "Default User"}
+            />
+            <Button onClick={() => document.getElementById("fileUpload")?.click()}>
+                Change Picture
+            </Button>
+            <input type="file" id="fileUpload" className="hidden" onChange={handleFileChange} />
+            {selectedFile && (
+                <Button onClick={handleUploadPicture}>
+                    Upload Picture
                 </Button>
-                <input type="file" id="fileUpload" className="hidden" onChange={handleFileChange} />
-                {selectedFile && (
-                    <Button onClick={handleUploadPicture}>
-                        Upload Picture
-                    </Button>
-                )}
-            </div>
+            )}
+        </div>
 
             {isEmailModalOpen && (
                 

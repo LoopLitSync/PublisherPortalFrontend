@@ -159,7 +159,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
             ) : (
               <tr>
                 <td colSpan={8} className="text-center p-4 border-t border-gray-300">
-                  No books available
+                  Loading books...
                 </td>
               </tr>
             )}

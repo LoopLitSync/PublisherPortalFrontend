@@ -111,7 +111,7 @@ function BookDetails() {
           </div>
           <div className='flex flex-row gap-2'>
             <p className="font-bold">Publication date:</p>
-            <p>{book.publicationDate}</p>
+            <p>{book.publicationYear}</p>
           </div>
           <div className='flex flex-row gap-2'>
             <p className="font-bold">Genres:</p>
@@ -211,7 +211,7 @@ function BookDetails() {
                             <div className="flex flex-col gap-2">
                               <p><strong>Description:</strong> {bookVersion.description}</p>
                               <p><strong>Language:</strong> {bookVersion.language}</p>
-                              <p><strong>Publication Date:</strong> {bookVersion.publicationDate}</p>
+                              <p><strong>Publication Date:</strong> {bookVersion.publicationYear}</p>
                               <p><strong>Genres:</strong> {bookVersion.genres.map(g => g.type).join(", ")}</p>
                               <p><strong>Authors:</strong></p>
                               <ul className="list-disc ml-6">

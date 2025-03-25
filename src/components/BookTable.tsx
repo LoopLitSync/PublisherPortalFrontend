@@ -11,11 +11,6 @@ const formatDateWithoutTime = (dateString: string) => {
   return date.toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" }); 
 };
 
-const formatDateToYear = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString([], { year: "numeric" }); 
-};
-
 const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [allBooks, setAllBooks] = useState<Book[]>([]);
@@ -95,7 +90,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
         <table className="w-full border border-black bg-white shadow-lg table-fixed">
           <thead>
             <tr className="bg-[#8075FF] text-white text-left border-b border-black">
-              {["isbn", "title", "authors", "publicationDate", "description", "submissionDate", "updatedDate", "validationStatus"].map((col) => (
+              {["isbn", "title", "authors", "publicationYear", "description", "submissionDate", "updatedDate", "validationStatus"].map((col) => (
                 <th
                   key={col}
                   className="p-3 border-r border-black cursor-pointer"
@@ -115,7 +110,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
                   <td className="p-3 border-r border-black truncate">
                     {book.authors.map((author) => `${author.firstName} ${author.lastName}`).join(", ")}
                   </td>
-                  <td className="p-3 border-r border-black truncate">{formatDateToYear(book.publicationDate)}</td>
+                  <td className="p-3 border-r border-black truncate">{book.publicationYear}</td>
                   <td className="p-3 border-r border-black truncate">
                   {book.description.length > 0 ? (
                     book.description.length > 100 ? `${book.description.slice(0, 20)}...` : book.description

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { formatDate } from "../utils/date.ts";
 import { useAuth } from "../AuthContext.tsx";
 import Button from "./Button.tsx";
-
+import { FaExclamationTriangle } from 'react-icons/fa'; 
 const formatDateWithoutTime = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" }); 
@@ -83,7 +83,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
             onChange={handleValidationStatusChange}
           >
             <option value="ALL">All</option>
-            <option value="NEEDS_REVISION">Needs validation</option>
+            <option value="NEEDS_REVISION">Needs revision</option>
           </select>
         </div>
         <div className="text-right font-semibold">
@@ -117,11 +117,43 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
                   </td>
                   <td className="p-3 border-r border-black truncate">{formatDateToYear(book.publicationDate)}</td>
                   <td className="p-3 border-r border-black truncate">
-                    {book.description.length > 100 ? `${book.description.slice(0, 20)}...` : book.description}
-                  </td>
+                  {book.description.length > 0 ? (
+                    book.description.length > 100 ? `${book.description.slice(0, 20)}...` : book.description
+                  ) : (
+                    <div className="flex items-center">
+                      <FaExclamationTriangle className="text-red-500 mr-2" />
+                     
+                    </div>
+                  )}
+                </td>
                   <td className="p-3 border-r border-black truncate">{formatDate(book.submissionDate)}</td>
                   <td className="p-3 border-r border-black truncate">{formatDateWithoutTime(book.updatedDate)}</td>
-                  <td className="p-3 border-r border-black truncate">{book.validationStatus}</td>
+                  <td
+                  className="p-3 border-r border-black truncate relative group cursor-pointer"
+                  title={
+                    book.genres.length === 0
+                      ? "No genres"
+                      : book.description.length === 0
+                      ? "Description is missing"
+                      : "Other issues"
+                  }
+                >
+                  {book.validationStatus === "NEEDS_REVISION" ? (
+                    <div className="text-red-500 flex items-center">
+                      <FaExclamationTriangle className="mr-2" />
+                      Needs revision
+                      <div className="absolute bg-gray-700 text-white p-2 rounded-lg hidden group-hover:block">
+                        {book.genres.length === 0
+                          ? "No genres"
+                          : book.description.length === 0
+                          ? "Description is missing"
+                          : "Other issues"}
+                      </div>
+                    </div>
+                  ) : (
+                    "Approved"
+                  )}
+                </td>
                 </tr>
               ))
             ) : (

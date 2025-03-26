@@ -95,7 +95,7 @@ const AdminArea = () => {
     return (
         <div className="p-6">
             <span className="text-2xl font-bold block text-center mb-2">User List</span>
-            {isLoading && <LoadingSpinner />}
+            {/* {isLoading && <LoadingSpinner />} */}
             <table className="w-full border border-black bg-white shadow-lg">
                 <thead>
                     <tr className="bg-[#8075FF] text-white text-left border-b border-black">
@@ -148,6 +148,7 @@ const AdminArea = () => {
                         ))) : (
                         <tr>
                             <td colSpan={8} className="text-center p-4 border-t border-gray-300">
+                                {isLoading ? <LoadingSpinner/> : "No users found."}
                             </td>
                         </tr>
                     )}

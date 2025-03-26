@@ -5,6 +5,7 @@ import { Book } from "../models/Book";
 import { submitBooks } from "../api/BookService";
 import Button from "./Button";
 import Papa, { ParseResult } from "papaparse"; 
+import { toast } from 'react-toastify';
 
 const BookBulkUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -35,7 +36,7 @@ const BookBulkUpload = () => {
   const handleSubmit = async () => {
     try {
       const report = await submitBooks(selectedFile);
-      alert("Bulk upload complete: " + report);
+      toast.success("Bulk upload complete: " + report);
     } catch {
       alert("Error uploading books");
     }

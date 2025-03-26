@@ -42,21 +42,25 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   useEffect(() => {
     if (publisher && publisher.id !== undefined) {
       if (searchQuery.trim() === "") {
-        fetchPublisherBooks(publisher.id, 0, 1000, validationStatus, selectedGenre !== "ALL" ? selectedGenre : undefined)
+        fetchPublisherBooks(publisher.id, 0, 1000, "ALL", selectedGenre !== "ALL" ? selectedGenre : undefined)
           .then(({ books }) => {
             setAllBooks(books);
             setTotalPages(Math.ceil(books.length / 500));
-            setBooks(books.slice(0, 5));
           });
       } else {
         fetchBooksByQuery(searchQuery).then(setAllBooks);
       }
     }
-  }, [publisher, validationStatus, searchQuery, selectedGenre]); 
+  }, [publisher, searchQuery, selectedGenre]); 
   
   useEffect(() => {
-    setBooks(allBooks.slice(currentPage * 500, (currentPage + 1) * 500));
-  }, [currentPage, allBooks]);
+    setBooks(
+      allBooks
+        .filter((book) => validationStatus === "ALL" || book.validationStatus === validationStatus)
+        .slice(0, 500)
+    );
+  }, [validationStatus, allBooks]); 
+  
 
   const handleValidationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setValidationStatus(e.target.value);

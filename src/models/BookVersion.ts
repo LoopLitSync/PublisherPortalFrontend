@@ -11,7 +11,7 @@ export interface BookVersion {
     description: string;
     validationStatus: string;
     updatedDate: string;
-    publicationDate: string;
+    publicationYear: number;
     language: string;
     coverImage: string | null;
     activeVersion: boolean;

@@ -18,7 +18,6 @@ const BookBulkUpload = () => {
     books.forEach((book, index) => {
       if (!book.isbn) errors.push(`Row ${index + 1}: Missing ISBN`);
       if (!book.title) errors.push(`Row ${index + 1}: Missing Title`);
-      if (!book.publicationDate) errors.push(`Row ${index + 1}: Missing Publication Date`);
       if (book.isbn && !/^\d{3}\d{10}$/.test(book.isbn)) {
         errors.push(`Row ${index + 1}: Invalid ISBN format (Expected: 978XXXXXXXXXX)`);
       }
@@ -62,7 +61,7 @@ const BookBulkUpload = () => {
             isbn: row.isbn,
             title: row.title,
             description: row.description || "", 
-            publicationDate: row.publicationDate,
+            publicationYear: row.publicationYear,
             authors: row.authors ? row.authors.split(',').map((author: string) => ({ name: author.trim() })) : [],
             genres: row.genres ? row.genres.split(',').map((genre: string) => genre.trim()) : [],
             language: row.language || "",
@@ -111,7 +110,7 @@ const BookBulkUpload = () => {
               <tr className="bg-[#8075FF] text-white">
                 <th className="border border-gray-300 px-4 py-2">ISBN</th>
                 <th className="border border-gray-300 px-4 py-2">Title</th>
-                <th className="border border-gray-300 px-4 py-2">Publication Date</th>
+                <th className="border border-gray-300 px-4 py-2">Publication Year</th>
               </tr>
             </thead>
             <tbody>
@@ -119,7 +118,7 @@ const BookBulkUpload = () => {
                 <tr key={index} className="border border-gray-300">
                   <td className="border border-gray-300 px-4 py-2">{book.isbn}</td>
                   <td className="border border-gray-300 px-4 py-2">{book.title}</td>
-                  <td className="border border-gray-300 px-4 py-2">{book.publicationDate}</td>
+                  <td className="border border-gray-300 px-4 py-2">{book.publicationYear}</td>
                 </tr>
               ))}
             </tbody>

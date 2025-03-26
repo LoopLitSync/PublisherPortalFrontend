@@ -19,7 +19,7 @@ const BookSubmissionForm = () => {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [genres, setGenres] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
-  const [publicationDate, setPublicationDate] = useState("");
+const [publicationYear, setPublicationYear] = useState<number | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
@@ -63,7 +63,7 @@ const BookSubmissionForm = () => {
       isbn,
       title,
       description,
-      publicationDate,
+      publicationYear: publicationYear ?? null,
       authors: authors.map((author) => ({
         firstName: author.firstName,
         lastName: author.lastName,
@@ -83,7 +83,7 @@ const BookSubmissionForm = () => {
         setAuthors([{ firstName: "", lastName: "", year: null }]);
         setLanguage("");
         setSelectedGenres([]);
-        setPublicationDate("");
+        setPublicationYear(0);
         setCoverImage(null);
         setCoverFile(null);
         setDescription("");
@@ -218,16 +218,16 @@ const BookSubmissionForm = () => {
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Publication Date</label>
-            <input
-              type="date"
-              value={publicationDate}
-              onChange={(e) => setPublicationDate(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
+        <div>
+  <label className="block text-sm font-medium text-gray-700">Publication Year</label>
+  <input
+    type="number"
+    value={publicationYear ?? ""}
+    onChange={(e) => setPublicationYear(e.target.value ? Number(e.target.value) : null)} 
+    required
+    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+  />
+</div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Cover Image</label>

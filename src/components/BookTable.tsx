@@ -7,10 +7,6 @@ import { useAuth } from "../AuthContext.tsx";
 import Button from "./Button.tsx";
 import { FaExclamationTriangle } from 'react-icons/fa'; 
 
-const formatDateToYear = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString([], { year: "numeric" }); 
-};
 
 const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -46,20 +42,20 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   useEffect(() => {
     if (publisher && publisher.id !== undefined) {
       if (searchQuery.trim() === "") {
-        fetchPublisherBooks(publisher.id, 0, 100, validationStatus, selectedGenre !== "ALL" ? selectedGenre : undefined)
+        fetchPublisherBooks(publisher.id, 0, 1000, validationStatus, selectedGenre !== "ALL" ? selectedGenre : undefined)
           .then(({ books }) => {
             setAllBooks(books);
-            setTotalPages(Math.ceil(books.length / 5));
+            setTotalPages(Math.ceil(books.length / 500));
             setBooks(books.slice(0, 5));
           });
       } else {
         fetchBooksByQuery(searchQuery).then(setAllBooks);
       }
     }
-  }, [publisher, validationStatus, searchQuery, selectedGenre]); // ✅ Include selectedGenre in dependencies
+  }, [publisher, validationStatus, searchQuery, selectedGenre]); 
   
   useEffect(() => {
-    setBooks(allBooks.slice(currentPage * 5, (currentPage + 1) * 5));
+    setBooks(allBooks.slice(currentPage * 500, (currentPage + 1) * 500));
   }, [currentPage, allBooks]);
 
   const handleValidationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -104,8 +100,11 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
           </select>
         </div>
         <div className="text-right font-semibold">
-          Approved: {approvedCount} | Needs Revision: {needsRevisionCount}
-        </div>
+        Approved: {approvedCount} |{" "}
+        <span className={needsRevisionCount > 0 ? "text-red-500" : ""}>
+          Needs Revision: {needsRevisionCount}
+        </span>
+      </div>
 
         <div>
           <label htmlFor="genreFilter" className="mr-2">Filter by Genre:</label>
@@ -126,7 +125,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
         <table className="w-full border border-black bg-white shadow-lg table-fixed">
           <thead>
             <tr className="bg-[#8075FF] text-white text-left border-b border-black">
-              {["isbn", "title", "authors", "publicationDate", "description", "submissionDate", "updatedDate", "validationStatus"].map((col) => (
+              {["isbn", "title", "authors", "publicationYear", "description", "submissionDate", "updatedDate", "validationStatus"].map((col) => (
                 <th
                   key={col}
                   className="p-3 border-r border-black cursor-pointer"
@@ -146,7 +145,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
                   <td className="p-3 border-r border-black truncate">
                     {book.authors.map((author) => `${author.firstName} ${author.lastName}`).join(", ")}
                   </td>
-                  <td className="p-3 border-r border-black truncate">{formatDateToYear(book.publicationDate)}</td>
+                  <td className="p-3 border-r border-black truncate">{book.publicationYear}</td>
                   <td className="p-3 border-r border-black truncate">
                     {book.description.length > 0 ? (
                       book.description.length > 100 ? `${book.description.slice(0, 20)}...` : book.description

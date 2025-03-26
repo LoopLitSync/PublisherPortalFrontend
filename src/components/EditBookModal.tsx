@@ -16,7 +16,7 @@ interface EditBookModalProps {
         authors: Author[];
         description: string;
         language: string;
-        publicationDate: string;
+        publicationYear: number;
         genres: string[];
         coverImg?: string;
     }) => Promise<void>;
@@ -29,7 +29,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         authors: Author[];
         description: string;
         language: string;
-        publicationDate: string;
+        publicationYear: number;
         genres: string[];
         coverImg: string;
     }>({
@@ -38,7 +38,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         authors: [],
         description: "",
         language: "",
-        publicationDate: "",
+        publicationYear: 0,
         genres: [],
         coverImg: "",
     });
@@ -48,7 +48,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
         authors: "",
         description: "",
         language: "",
-        publicationDate: "",
+        publicationYear: "",
         genres: ""
     });
 
@@ -78,7 +78,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                 authors: book.authors || [],
                 description: book.description,
                 language: book.language,
-                publicationDate: book.publicationDate,
+                publicationYear: book.publicationYear || 0,
                 genres: book.genres,
                 coverImg: book.coverImg || "",
             });
@@ -245,9 +245,16 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     </select>
                     {errors.language && <p className="text-red-500 text-sm">{errors.language}</p>}
 
-                    <label className="text-lg">Publication Date</label>
-                    <input className="w-full p-2 border rounded" type="date" name="publicationDate" value={formData.publicationDate} onChange={handleChange} />
-                    {errors.publicationDate && <p className="text-red-500 text-sm">{errors.publicationDate}</p>}
+                    <label className="text-lg">Publication Year</label>
+                    <input
+                        className="w-full p-2 border rounded"
+                        type="number"
+                        name="publicationYear"
+                        value={formData.publicationYear}
+                        onChange={handleChange}
+                        min="0"
+                    />
+                    {errors.publicationYear && <p className="text-red-500 text-sm">{errors.publicationYear}</p>}
 
                     <GenreSelector
                         availableGenres={availableGenres}

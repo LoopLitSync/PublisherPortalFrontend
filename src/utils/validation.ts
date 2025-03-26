@@ -5,7 +5,7 @@ export interface FormData {
     authors: Author[];
     description: string;
     language: string;
-    publicationDate: string;
+    publicationYear: string;
     genres: string[]; 
 }
 
@@ -14,7 +14,7 @@ export interface Errors {
     authors: string;
     description: string;
     language: string;
-    publicationDate: string;
+    publicationYear: string;
     genres: string;
 }
 
@@ -24,7 +24,7 @@ export function validateForm(formData: FormData): { isValid: boolean; errors: Er
         authors: "",
         description: "",
         language: "",
-        publicationDate: "",
+        publicationYear: "",
         genres: "",
     };
 
@@ -55,8 +55,8 @@ export function validateForm(formData: FormData): { isValid: boolean; errors: Er
         isValid = false;
     }
 
-    if (!formData.publicationDate) {
-        errors.publicationDate = "Publication date is required";
+    if (!formData.publicationYear) {
+        errors.publicationYear = "Publication date is required";
         isValid = false;
     }
 

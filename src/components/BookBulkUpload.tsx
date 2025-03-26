@@ -12,6 +12,7 @@ const BookBulkUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<Book[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const validateBooks = (books: Book[]) => {
     const errors: string[] = [];
@@ -20,7 +21,7 @@ const BookBulkUpload = () => {
     books.forEach((book, index) => {
       if (!book.isbn) errors.push(`Row ${index + 1}: Missing ISBN`);
       if (!book.title) errors.push(`Row ${index + 1}: Missing Title`);
-      if (!book.publicationDate) errors.push(`Row ${index + 1}: Missing Publication Date`);
+      if (!book.publicationYear) errors.push(`Row ${index + 1}: Missing Publication Year`);
       if (book.isbn && !/^\d{3}\d{10}$/.test(book.isbn)) {
         errors.push(`Row ${index + 1}: Invalid ISBN format (Expected: 978XXXXXXXXXX)`);
       }
@@ -35,6 +36,7 @@ const BookBulkUpload = () => {
   };
 
   const handleSubmit = async () => {
+    setIsUploading(true);
     try {
       const report: BulkUploadReport = await submitBooks(selectedFile);
       toast.success(
@@ -55,8 +57,22 @@ const BookBulkUpload = () => {
       );
     } catch {
       alert("Error uploading books");
+    } finally {
+      setIsUploading(false);
+      setPreviewData([]);
     }
   };
+
+  function filterFieldsBasedOnModel(author: Record<string, any>, modelFields: string[]) {
+    return Object.keys(author)
+      .filter(key => modelFields.includes(key))
+      .reduce((obj: Record<string, any>, key) => {
+        obj[key] = author[key];
+        return obj;
+      }, {});
+  }
+  
+  const authorModelFields = ['firstName', 'lastName', 'year'];
 
   const processFile = (file: File) => {
     const reader = new FileReader();
@@ -67,8 +83,34 @@ const BookBulkUpload = () => {
         if (!event.target?.result) return;
         const jsonData = JSON.parse(event.target.result as string);
         const parsedData = Array.isArray(jsonData) ? jsonData : [jsonData];
-        setPreviewData(parsedData.slice(0, 5));
-        validateBooks(parsedData);
+  
+        const books: Book[] = parsedData.map((row: any) => ({
+          id: 0, 
+          isbn: row.isbn,
+          title: row.title,
+          description: row.description || "", 
+          publicationYear: row.publishedyear || row.publicationYear, 
+          authors: row.authors
+          ? row.authors.map((author: any) => {
+              const filteredAuthor = filterFieldsBasedOnModel(author, authorModelFields);
+
+              return {
+                firstName: filteredAuthor.firstName ? filteredAuthor.firstName.trim() : "",
+                lastName: filteredAuthor.lastName ? filteredAuthor.lastName.trim() : "",
+                year: filteredAuthor.year || ""
+              };
+            })
+          : [],         
+          genres: row.genres ? row.genres.map((genre: string) => genre.trim()) : [],
+          language: row.language || "",
+          coverImg: row.coverimg || row.coverImg || null,
+          submissionDate: new Date().toISOString(),
+          updatedDate: new Date().toISOString(), 
+          validationStatus: "pending", 
+        }));
+  
+        setPreviewData(books.slice(0, 5));
+        validateBooks(books);
       };
       reader.readAsText(file);
     } else if (fileType === "text/csv") {
@@ -78,8 +120,8 @@ const BookBulkUpload = () => {
             id: 0,
             isbn: row.isbn,
             title: row.title,
-            description: row.description || "",
-            publicationDate: row.publicationDate,
+            description: row.description || "", 
+            publicationYear: row.publicationYear || row.publishedyear,
             authors: row.authors ? row.authors.split(',').map((author: string) => ({ name: author.trim() })) : [],
             genres: row.genres ? row.genres.split(',').map((genre: string) => genre.trim()) : [],
             language: row.language || "",
@@ -93,8 +135,6 @@ const BookBulkUpload = () => {
         },
         header: true,
       });
-
-
     }
   };
 
@@ -128,7 +168,7 @@ const BookBulkUpload = () => {
               <tr className="bg-[#8075FF] text-white">
                 <th className="border border-gray-300 px-4 py-2">ISBN</th>
                 <th className="border border-gray-300 px-4 py-2">Title</th>
-                <th className="border border-gray-300 px-4 py-2">Publication Date</th>
+                <th className="border border-gray-300 px-4 py-2">Publication Year</th>
               </tr>
             </thead>
             <tbody>
@@ -136,7 +176,7 @@ const BookBulkUpload = () => {
                 <tr key={index} className="border border-gray-300">
                   <td className="border border-gray-300 px-4 py-2">{book.isbn}</td>
                   <td className="border border-gray-300 px-4 py-2">{book.title}</td>
-                  <td className="border border-gray-300 px-4 py-2">{book.publicationDate}</td>
+                  <td className="border border-gray-300 px-4 py-2">{book.publicationYear}</td>
                 </tr>
               ))}
             </tbody>
@@ -155,9 +195,16 @@ const BookBulkUpload = () => {
       )}
       <div className="flex justify-center mt-5">
         {validationErrors.length === 0 && previewData.length > 0 && (
-          <Button onClick={handleSubmit}>
-            Submit Books
-          </Button>
+          <Button onClick={handleSubmit} disabled={isUploading}>
+          {isUploading ? (
+            <>
+              Uploading...
+            </>
+          ) : (
+            "Submit Books"
+          )}
+        </Button>
+        
         )}
       </div>
     </div>

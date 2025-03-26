@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from "../AuthContext";
 import { fetchPublisherById } from '../api/PublisherService';
+import LoadingSpinner from './LoadingSpinner';
 
 
 
@@ -56,7 +57,7 @@ const Navbar: React.FC = () => {
         `px-4 py-5 ${isActive ? "bg-darkgreen text-white" : "text-white hover:bg-neturalgreen"}`;
 
     if (!publisher) {
-        return <p>Loading publisher...</p>;
+        return <div><LoadingSpinner/></div>;
     }
 
     

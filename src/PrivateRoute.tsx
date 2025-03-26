@@ -2,6 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import keycloak from "./keycloak";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 const PrivateRoute = () => {
     const { isAuthenticated, isAdmin } = useAuth();
@@ -14,7 +15,7 @@ const PrivateRoute = () => {
     }, [keycloak.authenticated]);
 
     if (isAuthenticated === null) {
-        return <div>Loading...</div>;
+        return <div><LoadingSpinner/></div>;
     }
 
     if (!isAuthenticated && loginUrl) {
@@ -26,7 +27,7 @@ const PrivateRoute = () => {
     }
 
 
-    return isAuthenticated ? <Outlet /> : <div>Loading...</div>;
+    return isAuthenticated ? <Outlet /> : <div><LoadingSpinner/></div>;
 };
 
 export default PrivateRoute;

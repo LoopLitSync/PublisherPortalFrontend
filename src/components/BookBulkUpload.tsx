@@ -4,7 +4,9 @@ import { useDropzone } from "react-dropzone";
 import { Book } from "../models/Book";
 import { submitBooks } from "../api/BookService";
 import Button from "./Button";
-import Papa, { ParseResult } from "papaparse"; 
+import Papa, { ParseResult } from "papaparse";
+import { toast } from 'react-toastify';
+import { BulkUploadReport } from "../models/BulkUploadReport";
 
 const BookBulkUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -36,8 +38,23 @@ const BookBulkUpload = () => {
   const handleSubmit = async () => {
     setIsUploading(true);
     try {
-      const report = await submitBooks(selectedFile);
-      alert("Bulk upload complete: " + report);
+      const report: BulkUploadReport = await submitBooks(selectedFile);
+      toast.success(
+        <>
+          <div>
+            {report.success} books added, {report.fail} books failed.{" "}
+            {report.reportUrl && (
+              <a className="underline text-blue-400" href={report.reportUrl} target="_blank" rel="noopener noreferrer">
+                Download the validation report
+              </a>
+            )}
+          </div>
+        </>,
+        {
+          autoClose: false,
+          closeOnClick: false,
+        }
+      );
     } catch {
       alert("Error uploading books");
     } finally {
@@ -100,7 +117,7 @@ const BookBulkUpload = () => {
       Papa.parse(file, {
         complete: (result: ParseResult<Book>) => {
           const parsedData: Book[] = result.data.map((row: any) => ({
-            id: 0, 
+            id: 0,
             isbn: row.isbn,
             title: row.title,
             description: row.description || "", 
@@ -109,14 +126,14 @@ const BookBulkUpload = () => {
             genres: row.genres ? row.genres.split(',').map((genre: string) => genre.trim()) : [],
             language: row.language || "",
             coverImg: row.coverImg || null,
-            submissionDate: new Date().toISOString(), 
-            updatedDate: new Date().toISOString(), 
-            validationStatus: "pending", 
+            submissionDate: new Date().toISOString(),
+            updatedDate: new Date().toISOString(),
+            validationStatus: "pending",
           }));
-          setPreviewData(parsedData.slice(0, 5)); 
+          setPreviewData(parsedData.slice(0, 5));
           validateBooks(parsedData);
         },
-        header: true, 
+        header: true,
       });
     }
   };
@@ -132,7 +149,7 @@ const BookBulkUpload = () => {
     onDrop,
     accept: {
       "application/json": [".json"],
-      "text/csv": [".csv"], 
+      "text/csv": [".csv"],
     },
   });
 

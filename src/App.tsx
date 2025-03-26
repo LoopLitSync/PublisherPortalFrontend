@@ -9,6 +9,7 @@ import PrivateRoute from './PrivateRoute';
 import { AuthProvider } from './AuthContext';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminRoute from './AdminRoute';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
     return (
@@ -30,6 +31,7 @@ function App() {
                         <Route path="/admin-profile/:id" element={<PublisherProfile />} />
                     </Route>
                 </Routes>
+                <ToastContainer />
             </Router>
         </AuthProvider>
     );

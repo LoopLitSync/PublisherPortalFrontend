@@ -1,5 +1,6 @@
 import keycloak from "../keycloak";
 import { Book } from "../models/Book";
+import { BulkUploadReport } from "../models/BulkUploadReport";
 
 const API_URL = "http://localhost:8081/api/v1/books";
 
@@ -179,7 +180,7 @@ export const updateBook = async (id: number, bookData: Partial<Book>, coverFile?
   }
 };
 
-export const submitBooks = async (selectedFile: File | null): Promise<string> => {
+export const submitBooks = async (selectedFile: File | null): Promise<BulkUploadReport> => {
   try {
     if (!selectedFile) {
       throw new Error("No file selected!");
@@ -204,7 +205,7 @@ export const submitBooks = async (selectedFile: File | null): Promise<string> =>
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    return await response.text();
+    return await response.json();
   } catch (error) {
     console.error("Error uploading books:", error);
     throw error;

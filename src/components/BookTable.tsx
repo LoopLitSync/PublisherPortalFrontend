@@ -56,9 +56,10 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
     setBooks(
       allBooks
         .filter((book) => validationStatus === "ALL" || book.validationStatus === validationStatus)
+        .filter((book) => selectedGenre === "ALL" || book.genres.includes(selectedGenre))
         .slice(0, 250)
     );
-  }, [validationStatus, allBooks]); 
+  }, [validationStatus, selectedGenre, allBooks]); 
   
 
   const handleValidationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

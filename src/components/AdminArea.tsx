@@ -40,7 +40,7 @@ const AdminArea = () => {
 
 
     const handleEnableDisable = async (keycloakId: string, enable: boolean) => {
-        //setLoading(true);
+        setLoading(true);
         const currentPublisher = await fetchPublisherByKeycloakId(keycloakId);
         currentPublisher.isEnabled = enable;
 
@@ -51,7 +51,6 @@ const AdminArea = () => {
                     "Authorization": `Bearer ${keycloak.token}`,
                 },
             });
-            //setLoading(false);
             if (keycloakResponse.ok) {
                 alert(`User has been ${enable ? "enabled" : "disabled"} successfully.`);
                 await updatePublisher(currentPublisher?.id || 0, currentPublisher);
@@ -59,7 +58,7 @@ const AdminArea = () => {
                 alert(`Failed to ${enable ? "enabled" : "disabled"} user. Please try again later.`);
                 throw new Error(`Keycloak update failed: ${keycloakResponse.statusText}`);
             }
-
+            setLoading(false);
         } catch (error) {
             console.error("Error updating email:", error);
         }
@@ -96,21 +95,20 @@ const AdminArea = () => {
     return (
         <div className="p-6">
             <span className="text-2xl font-bold block text-center mb-2">User List</span>
-            {isLoading ? (
-                <LoadingSpinner/>
-            ) : (
-                <table className="w-full border border-black bg-white shadow-lg">
-                    <thead>
-                        <tr className="bg-[#8075FF] text-white text-left border-b border-black">
-                            <th className="p-3 border-r border-black">ID</th>
-                            <th className="p-3 border-r border-black">Username</th>
-                            <th className="p-3 border-r border-black">Email</th>
-                            <th className="p-3 border-r border-black">Enabled</th>
-                            <th className="p-3">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((user) => (
+            {/* {isLoading && <LoadingSpinner />} */}
+            <table className="w-full border border-black bg-white shadow-lg">
+                <thead>
+                    <tr className="bg-[#8075FF] text-white text-left border-b border-black">
+                        <th className="p-3 border-r border-black">ID</th>
+                        <th className="p-3 border-r border-black">Username</th>
+                        <th className="p-3 border-r border-black">Email</th>
+                        <th className="p-3 border-r border-black">Enabled</th>
+                        <th className="p-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {users.length > 0 ? (
+                        users.map((user) => (
                             <tr key={user.id} className="hover:bg-gray-100 border-b border-black">
                                 <td className="p-3 border-r border-black">{user.id}</td>
                                 <td className="p-3 border-r border-black">{user.username}</td>
@@ -147,10 +145,15 @@ const AdminArea = () => {
                                     </button>
                                 </td>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+                        ))) : (
+                        <tr>
+                            <td colSpan={8} className="text-center p-4 border-t border-gray-300">
+                                {isLoading ? <LoadingSpinner/> : "No users found."}
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
         </div>
     );
 }

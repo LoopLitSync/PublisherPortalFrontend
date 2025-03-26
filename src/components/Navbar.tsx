@@ -1,30 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import keycloak from '../keycloak';
 import { useAuth } from "../AuthContext";
 import { fetchPublisherById } from '../api/PublisherService';
+import LoadingSpinner from './LoadingSpinner';
 
 
 
 const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const { publisher, isAdmin } = useAuth();
-    // const [publisher, setPublisher] = useState<Publisher | null>(null);
+    const { publisher, isAdmin, logout } = useAuth();
     const [publisherPic, setPublisherPic] = useState<string | null>(null);
 
-
-    // useEffect(() => {
-    //     const currentPublisher = localStorage.getItem("loggedInPublisher");
-    //     if (currentPublisher) {
-    //         setPublisher(JSON.parse(currentPublisher));
-    //     }
-    // }, []);
-
-    // useEffect(() => {
-    //     // fetchPublisherById(publisher.id).then(setPublisher); 
-    //     fetchPublisherById(1).then(setPublisher); 
-    // }, []);
       useEffect(() => {
         if (publisher?.id) {
             fetchPublisherById(publisher.id)
@@ -41,8 +28,7 @@ const Navbar: React.FC = () => {
     const mobileMenuRef = useRef<HTMLDivElement>(null);
 
     const handleLogout = () => {
-        keycloak.logout({ redirectUri: window.location.origin });
-        localStorage.clear();
+        logout();
     };
 
     useEffect(() => {
@@ -71,7 +57,7 @@ const Navbar: React.FC = () => {
         `px-4 py-5 ${isActive ? "bg-darkgreen text-white" : "text-white hover:bg-neturalgreen"}`;
 
     if (!publisher) {
-        return <p>Loading publisher...</p>;
+        return <div><LoadingSpinner/></div>;
     }
 
     

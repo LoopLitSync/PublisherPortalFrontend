@@ -15,13 +15,16 @@ const ProfilePage: React.FC = () => {
     const [isEmailModalOpen, setEmailModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [currentPublisher, setCurrentPublisher] = useState<Publisher | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isProfileLoading, setIsProfileLoading] = useState(true);
+    const [isEmailLoading, setIsEmailLoading] = useState(false);
+    const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+
     const API_URL = "http://localhost:8081/api/v1/publishers";
 
     useEffect(() => {
         if (publisher) {
             fetchPublisherById(Number(publisher.id)).then(setCurrentPublisher);
-            setIsLoading(false);
+            setIsProfileLoading(false);
         }
     }, [publisher]);
 
@@ -29,7 +32,7 @@ const ProfilePage: React.FC = () => {
     const handleEmailUpdate = async () => {
         if (!newEmail.trim()) return alert("Please enter a valid email!");
 
-        setIsLoading(true);
+        setIsEmailLoading(true);
         if (currentPublisher) {
             currentPublisher.email = newEmail;
         }
@@ -42,8 +45,6 @@ const ProfilePage: React.FC = () => {
                     "Content-Type": "application/json",
                 },
             });
-            setIsLoading(false);
-            setEmailModalOpen(false);
             if (keycloakResponse.ok) {
                 alert("A verification email has been sent. Please check your inbox to verify your new email. \n\nNote: The new email will be updated in your profile after next login.");
                 if (currentPublisher) {
@@ -53,12 +54,15 @@ const ProfilePage: React.FC = () => {
                 alert("Failed to update email. Please try again later.");
                 throw new Error(`Keycloak update failed: ${keycloakResponse.statusText}`);
             }
+            setIsEmailLoading(false)
+            setEmailModalOpen(false);
         } catch (error) {
             console.error("Error updating email:", error);
         };
     };
 
     const handlePasswordUpdate = async () => {
+        setIsPasswordLoading(true);
         try {
             const response = await fetch(`${API_URL}/${keycloakId}/update_password`, {
                 method: "PUT",
@@ -67,15 +71,15 @@ const ProfilePage: React.FC = () => {
                     "Content-Type": "application/json",
                 },
             });
-
             if (response.ok) {
                 alert(`A password reset email has been sent to ${publisher?.email}. Please check your inbox to reset your password.`);
             } else {
                 alert("Failed to send password reset email.");
             }
+            setIsPasswordLoading(false)
         } catch (error) {
             console.error("Error updating password:", error);
-        }
+        };
     };
 
 
@@ -130,6 +134,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
     return (
         <div className="flex h-screen items-center justify-center gap-10">
+            {isProfileLoading && <LoadingSpinner/> }
             <div className="flex flex-col gap-4">
                 <h1 className="font-bold text-2xl">{currentPublisher?.name}</h1>
                 <div className="flex flex-row gap-2">
@@ -140,7 +145,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
                     <Button onClick={() => setEmailModalOpen(true)}>
                         Change E-mail
                     </Button>
-                    <Button onClick={handlePasswordUpdate}>
+                    <Button onClick={ handlePasswordUpdate } {...isPasswordLoading && { disabled: true }}>
                         Change Password
                     </Button>
                 </div>
@@ -164,9 +169,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
         </div>
 
             {isEmailModalOpen && (
-                
                 <div className="fixed inset-0 flex items-center justify-center bg-black/15">
-                    {!isLoading ?
                         <div className="bg-white p-6 rounded-lg shadow-lg">
                             <div>
                                 <h2 className="text-lg font-bold mb-4">Update Email</h2>
@@ -178,7 +181,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
                                     onChange={(e) => setNewEmail(e.target.value)}
                                 />
                                 <div className="flex justify-end mt-4 gap-2">
-                                    <Button onClick={handleEmailUpdate}>
+                                    <Button onClick={handleEmailUpdate} {...isEmailLoading && { disabled: true }}>
                                         Update
                                     </Button>
                                     <button className=" bg-gray-500 text-white px-4 py-2 rounded-lg" onClick={() => setEmailModalOpen(false)}>
@@ -186,8 +189,7 @@ const [previewUrl, setPreviewUrl] = useState<string | null>(null);
                                     </button>
                                 </div>
                             </div>
-                        </div> : ((<LoadingSpinner />)
-                    )}
+                        </div> 
 
                 </div>
 

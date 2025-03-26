@@ -6,6 +6,7 @@ interface AuthContextType {
     publisher: Publisher | null;
     isAuthenticated: boolean;
     isAdmin: boolean;
+    logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -68,10 +69,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             const roles = keycloak.tokenParsed?.realm_access?.roles || [];
             setIsAdmin(roles.includes("admin"));
         }
+        const handleUnload = () => {
+            localStorage.removeItem("loggedInPublisher");
+            setPublisher(null);
+            setIsAuthenticated(false);
+            setIsAdmin(false);
+        };
+
+        window.addEventListener("beforeunload", handleUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleUnload);
+        };
     }, [keycloak.authenticated]);
 
+
+    const logout = () => {
+        setPublisher(null);
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        localStorage.removeItem("loggedInPublisher");
+        keycloak.logout({redirectUri: window.location.origin});
+    };
+
     return (
-        <AuthContext.Provider value={{ publisher, isAuthenticated, isAdmin }}>
+        <AuthContext.Provider value={{ publisher, isAuthenticated, isAdmin, logout }}>
             {children}
         </AuthContext.Provider>
     );

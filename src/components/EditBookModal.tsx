@@ -78,7 +78,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                 authors: book.authors || [],
                 description: book.description,
                 language: book.language,
-                publicationYear: book.publicationYear || 0,
+                publicationYear: book.publicationYear,
                 genres: book.genres,
                 coverImg: book.coverImg || "",
             });
@@ -143,7 +143,7 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const { isValid, errors } = validateForm(formData);
+        const { isValid, errors } = validateForm({ ...formData, publicationYear: formData.publicationYear.toString() });
         if (isValid) {
             try {
                 await updateBook(formData.id, formData, coverFile);
@@ -245,15 +245,8 @@ function EditBookModal({ book, isOpen, onClose, onSave }: EditBookModalProps) {
                     </select>
                     {errors.language && <p className="text-red-500 text-sm">{errors.language}</p>}
 
-                    <label className="text-lg">Publication Year</label>
-                    <input
-                        className="w-full p-2 border rounded"
-                        type="number"
-                        name="publicationYear"
-                        value={formData.publicationYear}
-                        onChange={handleChange}
-                        min="0"
-                    />
+                    <label className="text-lg">Publication Date</label>
+                    <input className="w-full p-2 border rounded" type="date" name="publicationYear" value={formData.publicationYear} onChange={handleChange} />
                     {errors.publicationYear && <p className="text-red-500 text-sm">{errors.publicationYear}</p>}
 
                     <GenreSelector

@@ -7,7 +7,6 @@ import { useAuth } from "../AuthContext.tsx";
 import Button from "./Button.tsx";
 import { FaExclamationTriangle } from 'react-icons/fa'; 
 
-
 const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [allBooks, setAllBooks] = useState<Book[]>([]);
@@ -45,7 +44,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
         fetchPublisherBooks(publisher.id, 0, 1000, "ALL", selectedGenre !== "ALL" ? selectedGenre : undefined)
           .then(({ books }) => {
             setAllBooks(books);
-            setTotalPages(Math.ceil(books.length / 500));
+            setTotalPages(Math.ceil(books.length / 250));
           });
       } else {
         fetchBooksByQuery(searchQuery).then(setAllBooks);
@@ -57,7 +56,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
     setBooks(
       allBooks
         .filter((book) => validationStatus === "ALL" || book.validationStatus === validationStatus)
-        .slice(0, 500)
+        .slice(0, 250)
     );
   }, [validationStatus, allBooks]); 
   
@@ -176,7 +175,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
             ) : (
               <tr>
                 <td colSpan={8} className="text-center p-4 border-t border-gray-300">
-                  No books available
+                  Loading books...
                 </td>
               </tr>
             )}

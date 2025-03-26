@@ -5,7 +5,7 @@ export interface Book {
     isbn: string;
     title: string;
     description: string;
-    publicationYear?: number | null; 
+    publicationYear: number;
     authors: Author[];
     genres: string[];
     language: string;

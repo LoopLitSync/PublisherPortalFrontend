@@ -5,7 +5,7 @@ export interface FormData {
     authors: Author[];
     description: string;
     language: string;
-    publicationYear: number;
+    publicationYear: string;
     genres: string[]; 
 }
 

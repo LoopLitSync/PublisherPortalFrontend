@@ -6,15 +6,6 @@ import { formatDate } from "../utils/date.ts";
 import { useAuth } from "../AuthContext.tsx";
 import Button from "./Button.tsx";
 import { FaExclamationTriangle } from 'react-icons/fa'; 
-const formatDateWithoutTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" }); 
-};
-
-const formatDateToYear = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString([], { year: "numeric" }); 
-};
 
 const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -26,24 +17,50 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const navigate = useNavigate();
   const { publisher } = useAuth();
+  const [selectedGenre, setSelectedGenre] = useState<string>("ALL");
+  const [genres, setGenres] = useState<string[]>([]); // State to hold the available genres
+  
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await fetch('http://localhost:8081/api/v1/books/genres');
+        if (response.ok) {
+          const data = await response.json();
+          setGenres(data); // Set the fetched genres
+        } else {
+          console.error('Failed to fetch genres');
+        }
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      }
+    };
+
+    fetchGenres();
+  }, []); // Empty dependency array means this runs only once when the component mounts
 
   useEffect(() => {
     if (publisher && publisher.id !== undefined) {
       if (searchQuery.trim() === "") {
-        fetchPublisherBooks(publisher.id, 0, 1000, validationStatus).then(({ books }) => {
-          setAllBooks(books);
-          setTotalPages(Math.ceil(books.length / 5));
-          setBooks(books.slice(0, 5));
-        });
+        fetchPublisherBooks(publisher.id, 0, 1000, "ALL", selectedGenre !== "ALL" ? selectedGenre : undefined)
+          .then(({ books }) => {
+            setAllBooks(books);
+            setTotalPages(Math.ceil(books.length / 250));
+          });
       } else {
         fetchBooksByQuery(searchQuery).then(setAllBooks);
       }
     }
-  }, [publisher, validationStatus, searchQuery]);
-
+  }, [publisher, searchQuery, selectedGenre]); 
+  
   useEffect(() => {
-    setBooks(allBooks.slice(currentPage * 5, (currentPage + 1) * 5));
-  }, [currentPage, allBooks]);
+    setBooks(
+      allBooks
+        .filter((book) => validationStatus === "ALL" || book.validationStatus === validationStatus)
+        .filter((book) => selectedGenre === "ALL" || book.genres.includes(selectedGenre))
+        .slice(0, 250)
+    );
+  }, [validationStatus, selectedGenre, allBooks]); 
+  
 
   const handleValidationStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setValidationStatus(e.target.value);
@@ -74,7 +91,7 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
 
   return (
     <div className="p-6">
-       <div className="flex justify-between mb-4">
+      <div className="flex justify-between mb-4">
         <div>
           <label htmlFor="validationStatus" className="mr-2">Filter by Validation Status:</label>
           <select 
@@ -87,15 +104,32 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
           </select>
         </div>
         <div className="text-right font-semibold">
-          Approved: {approvedCount} | Needs Revision: {needsRevisionCount}
+        Approved: {approvedCount} |{" "}
+        <span className={needsRevisionCount > 0 ? "text-red-500" : ""}>
+          Needs Revision: {needsRevisionCount}
+        </span>
+      </div>
+
+        <div>
+          <label htmlFor="genreFilter" className="mr-2">Filter by Genre:</label>
+          <select 
+            id="genreFilter"
+            value={selectedGenre}
+            onChange={(e) => setSelectedGenre(e.target.value)}
+          >
+            <option value="ALL">All</option>
+            {genres.map((genre) => (
+              <option key={genre} value={genre}>{genre}</option>
+            ))}
+          </select>
         </div>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="w-full border border-black bg-white shadow-lg table-fixed">
           <thead>
             <tr className="bg-[#8075FF] text-white text-left border-b border-black">
-              {["isbn", "title", "authors", "publicationDate", "description", "submissionDate", "updatedDate", "validationStatus"].map((col) => (
+              {["isbn", "title", "authors", "publicationYear", "description", "submissionDate", "updatedDate", "validationStatus"].map((col) => (
                 <th
                   key={col}
                   className="p-3 border-r border-black cursor-pointer"
@@ -115,51 +149,34 @@ const BookTable: React.FC<{ searchQuery: string}> = ({ searchQuery }) => {
                   <td className="p-3 border-r border-black truncate">
                     {book.authors.map((author) => `${author.firstName} ${author.lastName}`).join(", ")}
                   </td>
-                  <td className="p-3 border-r border-black truncate">{formatDateToYear(book.publicationDate)}</td>
+                  <td className="p-3 border-r border-black truncate">{book.publicationYear}</td>
                   <td className="p-3 border-r border-black truncate">
-                  {book.description.length > 0 ? (
-                    book.description.length > 100 ? `${book.description.slice(0, 20)}...` : book.description
-                  ) : (
-                    <div className="flex items-center">
-                      <FaExclamationTriangle className="text-red-500 mr-2" />
-                     
-                    </div>
-                  )}
-                </td>
-                  <td className="p-3 border-r border-black truncate">{formatDate(book.submissionDate)}</td>
-                  <td className="p-3 border-r border-black truncate">{formatDateWithoutTime(book.updatedDate)}</td>
-                  <td
-                  className="p-3 border-r border-black truncate relative group cursor-pointer"
-                  title={
-                    book.genres.length === 0
-                      ? "No genres"
-                      : book.description.length === 0
-                      ? "Description is missing"
-                      : "Other issues"
-                  }
-                >
-                  {book.validationStatus === "NEEDS_REVISION" ? (
-                    <div className="text-red-500 flex items-center">
-                      <FaExclamationTriangle className="mr-2" />
-                      Needs revision
-                      <div className="absolute bg-gray-700 text-white p-2 rounded-lg hidden group-hover:block">
-                        {book.genres.length === 0
-                          ? "No genres"
-                          : book.description.length === 0
-                          ? "Description is missing"
-                          : "Other issues"}
+                    {book.description.length > 0 ? (
+                      book.description.length > 100 ? `${book.description.slice(0, 20)}...` : book.description
+                    ) : (
+                      <div className="flex items-center">
+                        <FaExclamationTriangle className="text-red-500 mr-2" />
                       </div>
-                    </div>
-                  ) : (
-                    "Approved"
-                  )}
-                </td>
+                    )}
+                  </td>
+                  <td className="p-3 border-r border-black truncate">{formatDate(book.submissionDate)}</td>
+                  <td className="p-3 border-r border-black truncate">{formatDate(book.updatedDate)}</td>
+                  <td className="p-3 border-r border-black truncate relative group cursor-pointer">
+                    {book.validationStatus === "NEEDS_REVISION" ? (
+                      <div className="text-red-500 flex items-center">
+                        <FaExclamationTriangle className="mr-2" />
+                        Needs revision
+                      </div>
+                    ) : (
+                      "Approved"
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td colSpan={8} className="text-center p-4 border-t border-gray-300">
-                  No books available
+                  Loading books...
                 </td>
               </tr>
             )}

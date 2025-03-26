@@ -1,6 +1,6 @@
 import React from 'react';
 import BookSubmissionForm from '../components/BookSubmissionForm';
-import BookBulkUpload from '../components/BoobBulkUpload';
+import BookBulkUpload from '../components/BookBulkUpload';
 
 const BookSubmission: React.FC = () => {
     return (

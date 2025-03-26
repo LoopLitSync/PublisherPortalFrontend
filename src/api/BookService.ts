@@ -35,10 +35,21 @@ export const fetchPublisherBooks = async (
   publisherId: number,
   page: number = 0,
   size: number = 10,
-  validationStatus: string = "NEEDS_REVISION"
+  validationStatus: string = "NEEDS_REVISION",
+  genre?: string // Optional genre parameter
 ): Promise<{ books: Book[], totalPages: number }> => {
   try {
-    const url = `${API_URL}/publisher/${publisherId}?validationStatus=${validationStatus}&page=${page}&size=${size}`;
+    const params = new URLSearchParams({
+      validationStatus,
+      page: page.toString(),
+      size: size.toString(),
+    });
+
+    if (genre) {
+      params.append("genre", genre); // Add genre filter if provided
+    }
+
+    const url = `${API_URL}/publisher/${publisherId}?${params.toString()}`;
     const response = await fetch(url);
 
     if (!response.ok) throw new Error("Failed to fetch books");
@@ -50,7 +61,8 @@ export const fetchPublisherBooks = async (
     console.error("Error fetching books:", error);
     return { books: [], totalPages: 0 }; // Default response if error occurs
   }
-}
+};
+
 
 export const submitBook = async (bookData: Partial<Book>, coverFile: File | null) => {
   const formData = new FormData();

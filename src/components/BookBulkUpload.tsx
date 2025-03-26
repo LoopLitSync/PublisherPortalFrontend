@@ -4,12 +4,15 @@ import { useDropzone } from "react-dropzone";
 import { Book } from "../models/Book";
 import { submitBooks } from "../api/BookService";
 import Button from "./Button";
-import Papa, { ParseResult } from "papaparse"; 
+import Papa, { ParseResult } from "papaparse";
+import { toast } from 'react-toastify';
+import { BulkUploadReport } from "../models/BulkUploadReport";
 
 const BookBulkUpload = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<Book[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const validateBooks = (books: Book[]) => {
     const errors: string[] = [];
@@ -18,7 +21,7 @@ const BookBulkUpload = () => {
     books.forEach((book, index) => {
       if (!book.isbn) errors.push(`Row ${index + 1}: Missing ISBN`);
       if (!book.title) errors.push(`Row ${index + 1}: Missing Title`);
-      if (!book.publicationDate) errors.push(`Row ${index + 1}: Missing Publication Date`);
+      if (!book.publicationYear) errors.push(`Row ${index + 1}: Missing Publication Year`);
       if (book.isbn && !/^\d{3}\d{10}$/.test(book.isbn)) {
         errors.push(`Row ${index + 1}: Invalid ISBN format (Expected: 978XXXXXXXXXX)`);
       }
@@ -33,13 +36,43 @@ const BookBulkUpload = () => {
   };
 
   const handleSubmit = async () => {
+    setIsUploading(true);
     try {
-      const report = await submitBooks(selectedFile);
-      alert("Bulk upload complete: " + report);
+      const report: BulkUploadReport = await submitBooks(selectedFile);
+      toast.success(
+        <>
+          <div>
+            {report.success} books added, {report.fail} books failed.{" "}
+            {report.reportUrl && (
+              <a className="underline text-blue-400" href={report.reportUrl} target="_blank" rel="noopener noreferrer">
+                Download the validation report
+              </a>
+            )}
+          </div>
+        </>,
+        {
+          autoClose: false,
+          closeOnClick: false,
+        }
+      );
     } catch {
       alert("Error uploading books");
+    } finally {
+      setIsUploading(false);
+      setPreviewData([]);
     }
   };
+
+  function filterFieldsBasedOnModel(author: Record<string, any>, modelFields: string[]) {
+    return Object.keys(author)
+      .filter(key => modelFields.includes(key))
+      .reduce((obj: Record<string, any>, key) => {
+        obj[key] = author[key];
+        return obj;
+      }, {});
+  }
+  
+  const authorModelFields = ['firstName', 'lastName', 'year'];
 
   const processFile = (file: File) => {
     const reader = new FileReader();
@@ -50,34 +83,58 @@ const BookBulkUpload = () => {
         if (!event.target?.result) return;
         const jsonData = JSON.parse(event.target.result as string);
         const parsedData = Array.isArray(jsonData) ? jsonData : [jsonData];
-        setPreviewData(parsedData.slice(0, 5)); 
-        validateBooks(parsedData);
+  
+        const books: Book[] = parsedData.map((row: any) => ({
+          id: 0, 
+          isbn: row.isbn,
+          title: row.title,
+          description: row.description || "", 
+          publicationYear: row.publishedyear || row.publicationYear, 
+          authors: row.authors
+          ? row.authors.map((author: any) => {
+              const filteredAuthor = filterFieldsBasedOnModel(author, authorModelFields);
+
+              return {
+                firstName: filteredAuthor.firstName ? filteredAuthor.firstName.trim() : "",
+                lastName: filteredAuthor.lastName ? filteredAuthor.lastName.trim() : "",
+                year: filteredAuthor.year || ""
+              };
+            })
+          : [],         
+          genres: row.genres ? row.genres.map((genre: string) => genre.trim()) : [],
+          language: row.language || "",
+          coverImg: row.coverimg || row.coverImg || null,
+          submissionDate: new Date().toISOString(),
+          updatedDate: new Date().toISOString(), 
+          validationStatus: "pending", 
+        }));
+  
+        setPreviewData(books.slice(0, 5));
+        validateBooks(books);
       };
       reader.readAsText(file);
     } else if (fileType === "text/csv") {
       Papa.parse(file, {
         complete: (result: ParseResult<Book>) => {
           const parsedData: Book[] = result.data.map((row: any) => ({
-            id: 0, 
+            id: 0,
             isbn: row.isbn,
             title: row.title,
             description: row.description || "", 
-            publicationDate: row.publicationDate,
+            publicationYear: row.publicationYear || row.publishedyear,
             authors: row.authors ? row.authors.split(',').map((author: string) => ({ name: author.trim() })) : [],
             genres: row.genres ? row.genres.split(',').map((genre: string) => genre.trim()) : [],
             language: row.language || "",
             coverImg: row.coverImg || null,
-            submissionDate: new Date().toISOString(), 
-            updatedDate: new Date().toISOString(), 
-            validationStatus: "pending", 
+            submissionDate: new Date().toISOString(),
+            updatedDate: new Date().toISOString(),
+            validationStatus: "pending",
           }));
-          setPreviewData(parsedData.slice(0, 5)); 
+          setPreviewData(parsedData.slice(0, 5));
           validateBooks(parsedData);
         },
-        header: true, 
+        header: true,
       });
-      
-      
     }
   };
 
@@ -92,7 +149,7 @@ const BookBulkUpload = () => {
     onDrop,
     accept: {
       "application/json": [".json"],
-      "text/csv": [".csv"], 
+      "text/csv": [".csv"],
     },
   });
 
@@ -111,7 +168,7 @@ const BookBulkUpload = () => {
               <tr className="bg-[#8075FF] text-white">
                 <th className="border border-gray-300 px-4 py-2">ISBN</th>
                 <th className="border border-gray-300 px-4 py-2">Title</th>
-                <th className="border border-gray-300 px-4 py-2">Publication Date</th>
+                <th className="border border-gray-300 px-4 py-2">Publication Year</th>
               </tr>
             </thead>
             <tbody>
@@ -119,7 +176,7 @@ const BookBulkUpload = () => {
                 <tr key={index} className="border border-gray-300">
                   <td className="border border-gray-300 px-4 py-2">{book.isbn}</td>
                   <td className="border border-gray-300 px-4 py-2">{book.title}</td>
-                  <td className="border border-gray-300 px-4 py-2">{book.publicationDate}</td>
+                  <td className="border border-gray-300 px-4 py-2">{book.publicationYear}</td>
                 </tr>
               ))}
             </tbody>
@@ -138,9 +195,16 @@ const BookBulkUpload = () => {
       )}
       <div className="flex justify-center mt-5">
         {validationErrors.length === 0 && previewData.length > 0 && (
-          <Button onClick={handleSubmit}>
-            Submit Books
-          </Button>
+          <Button onClick={handleSubmit} disabled={isUploading}>
+          {isUploading ? (
+            <>
+              Uploading...
+            </>
+          ) : (
+            "Submit Books"
+          )}
+        </Button>
+        
         )}
       </div>
     </div>

@@ -42,7 +42,7 @@ const BookBulkUpload = () => {
       toast.success(
         <>
           <div>
-            {report.success} books added, {report.fail} books failed.{" "}
+            {report.success} approved, {report.revision} needs revision, {report.fail} failed.{" "}
             {report.reportUrl && (
               <a className="underline text-blue-400" href={report.reportUrl} target="_blank" rel="noopener noreferrer">
                 Download the validation report

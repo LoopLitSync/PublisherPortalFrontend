@@ -103,9 +103,9 @@ const ProfilePage: React.FC = () => {
             });
     
             if (response.ok) {
-                alert("Profile picture updated successfully.");
                 const updatedPublisher = await fetchPublisherById(Number(publisher?.id));
                 setCurrentPublisher(updatedPublisher);
+                window.location.reload();
             } else {
                 const errorMessage = await response.text();
                 alert(`Failed to upload image: ${errorMessage}`);

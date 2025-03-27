@@ -3,6 +3,7 @@ import { fetchGenres, fetchLanguages, submitBook } from "../api/BookService";
 import { Book } from "../models/Book";
 import { Author } from "../models/Author";
 import GenreSelector from "./GenreSelector";
+import { toast } from "react-toastify";
 
 const isValidIsbn = (isbn: string): boolean => {
   const isbn10Regex = /^(?:\d{9}X|\d{10})$/;
@@ -77,7 +78,7 @@ const BookSubmissionForm = () => {
     try {
       const result = await submitBook(bookData, coverFile);
       if (result) {
-        setMessage("Book submitted successfully!");
+        toast.success("Book submitted successfully!");
         setTitle("");
         setIsbn("");
         setAuthors([{ firstName: "", lastName: "", year: null }]);
